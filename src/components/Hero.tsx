@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Compass } from 'lucide-react';
 
-const Hero = () => {
+const Hero: React.FC = () => {
   return (
     <div className="relative w-full h-[50vh] md:h-[60vh] overflow-hidden hero-gradient flex items-center justify-center">
       <div 

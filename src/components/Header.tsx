@@ -3,7 +3,7 @@ import React from 'react';
 import { MapPin, Search, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const Header = () => {
+const Header: React.FC = () => {
   return (
     <header className="w-full py-4 px-6 flex items-center justify-between bg-white/80 backdrop-blur-sm sticky top-0 z-50 border-b">
       <div className="flex items-center">
