@@ -2,7 +2,6 @@
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import { StrictMode } from 'react';
 
 // Get the root element
 const rootElement = document.getElementById('root');
@@ -14,8 +13,4 @@ if (!rootElement) {
 
 // Create and render the root
 const root = createRoot(rootElement);
-root.render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
+root.render(<App />);
