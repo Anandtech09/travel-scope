@@ -123,14 +123,15 @@ export const getDestinationDetails = async (destination: Destination) => {
         "bestTimeToVisit": "Best seasons or months to visit",
         "localTips": "Tips for travelers visiting this destination",
         "expenses": {
-          "transportation": Percentage of budget (number),
-          "accommodation": Percentage of budget (number),
-          "food": Percentage of budget (number),
-          "activities": Percentage of budget (number),
-          "other": Percentage of budget (number)
+          "transportation": Number (percentage of budget),
+          "accommodation": Number (percentage of budget),
+          "food": Number (percentage of budget),
+          "activities": Number (percentage of budget),
+          "other": Number (percentage of budget)
         }
       }
       
+      IMPORTANT: All expense percentage values must be numbers, not objects or ranges. For example: "transportation": 30 (not "transportation": {"min": 25, "max": 35}).
       Return ONLY the JSON object, no other text.
     `;
 
@@ -173,7 +174,21 @@ export const getDestinationDetails = async (destination: Destination) => {
       throw new Error("Failed to extract details from API response");
     }
     
-    return JSON.parse(jsonMatch[0]);
+    const details = JSON.parse(jsonMatch[0]);
+    
+    // Ensure expense values are numbers, not objects
+    if (details.expenses) {
+      const { expenses } = details;
+      details.expenses = {
+        transportation: typeof expenses.transportation === 'object' ? 20 : Number(expenses.transportation),
+        accommodation: typeof expenses.accommodation === 'object' ? 30 : Number(expenses.accommodation),
+        food: typeof expenses.food === 'object' ? 25 : Number(expenses.food),
+        activities: typeof expenses.activities === 'object' ? 15 : Number(expenses.activities),
+        other: typeof expenses.other === 'object' ? 10 : Number(expenses.other)
+      };
+    }
+    
+    return details;
   } catch (error) {
     console.error("Error fetching destination details:", error);
     return null;

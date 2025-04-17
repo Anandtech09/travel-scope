@@ -15,12 +15,13 @@ interface ExpenseChartProps {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#9271F6'];
 
 const ExpenseChart: React.FC<ExpenseChartProps> = ({ expenses }) => {
+  // Make sure all expense values are numbers, not objects
   const data = [
-    { name: 'Transportation', value: expenses.transportation },
-    { name: 'Accommodation', value: expenses.accommodation },
-    { name: 'Food', value: expenses.food },
-    { name: 'Activities', value: expenses.activities },
-    { name: 'Other', value: expenses.other },
+    { name: 'Transportation', value: Number(expenses.transportation) },
+    { name: 'Accommodation', value: Number(expenses.accommodation) },
+    { name: 'Food', value: Number(expenses.food) },
+    { name: 'Activities', value: Number(expenses.activities) },
+    { name: 'Other', value: Number(expenses.other) },
   ];
 
   return (

@@ -90,8 +90,8 @@ export const fetchWeatherData = async (lat: number, lon: number): Promise<Weathe
       forecast: forecast.map((day: any, index: number) => ({
         date: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { weekday: 'short' }),
         condition: mapWeatherCode(day.weather || ''),
-        minTemp: day.temp2m - 2, // 7timer doesn't provide min/max, so we approximate
-        maxTemp: day.temp2m + 2,
+        minTemp: Math.round(day.temp2m - 2), // Ensure these are numbers, not objects
+        maxTemp: Math.round(day.temp2m + 2), // Ensure these are numbers, not objects
         iconCode: day.weather || ''
       }))
     };
