@@ -52,11 +52,12 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
       const position = await getCurrentLocation();
       const { latitude, longitude } = position.coords;
       
-      // Try to fetch weather data in parallel
+      // Try to fetch weather data in parallel without blocking
       fetchWeatherData(latitude, longitude)
         .then((weatherData) => {
           if ('error' in weatherData) {
             console.error('Weather error:', weatherData.error);
+            // Don't block or show an error toast for weather failures
           } else {
             // Set the location in the weather data
             weatherData.location = location || 'Your Location';
@@ -65,6 +66,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
         })
         .catch(error => {
           console.error('Error fetching weather:', error);
+          // Silently fail, don't block main functionality
         });
       
       // Reverse geocode to get location name

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Card } from '@/components/ui/card';
-import { Loader2, Cloud, Droplets, Wind, ThermometerSun, Sun, CloudRain, CloudSnow, CloudLightning, CloudFog } from 'lucide-react';
+import { Loader2, Cloud, Droplets, Wind, Sun, CloudRain, CloudSnow, CloudLightning, CloudFog } from 'lucide-react';
 import { getWeatherData } from '@/utils/weatherApi';
 import { useToast } from '@/hooks/use-toast';
 
@@ -24,22 +24,22 @@ interface WeatherData {
 }
 
 const getWeatherIcon = (condition: string) => {
-  switch (condition.toLowerCase()) {
-    case 'clear':
-      return <Sun className="h-10 w-10 text-yellow-500" />;
-    case 'clouds':
-      return <Cloud className="h-10 w-10 text-gray-500" />;
-    case 'rain':
-      return <CloudRain className="h-10 w-10 text-blue-500" />;
-    case 'snow':
-      return <CloudSnow className="h-10 w-10 text-sky-300" />;
-    case 'thunderstorm':
-      return <CloudLightning className="h-10 w-10 text-indigo-600" />;
-    case 'mist':
-    case 'fog':
-      return <CloudFog className="h-10 w-10 text-gray-400" />;
-    default:
-      return <Cloud className="h-10 w-10 text-gray-500" />;
+  const conditionLower = condition.toLowerCase();
+  
+  if (conditionLower.includes('clear') || conditionLower.includes('sun')) {
+    return <Sun className="h-10 w-10 text-yellow-500" />;
+  } else if (conditionLower.includes('cloud') || conditionLower.includes('overcast')) {
+    return <Cloud className="h-10 w-10 text-gray-500" />;
+  } else if (conditionLower.includes('rain') || conditionLower.includes('shower')) {
+    return <CloudRain className="h-10 w-10 text-blue-500" />;
+  } else if (conditionLower.includes('snow')) {
+    return <CloudSnow className="h-10 w-10 text-sky-300" />;
+  } else if (conditionLower.includes('thunder') || conditionLower.includes('storm')) {
+    return <CloudLightning className="h-10 w-10 text-indigo-600" />;
+  } else if (conditionLower.includes('mist') || conditionLower.includes('fog')) {
+    return <CloudFog className="h-10 w-10 text-gray-400" />;
+  } else {
+    return <Cloud className="h-10 w-10 text-gray-500" />;
   }
 };
 

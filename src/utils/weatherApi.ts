@@ -20,13 +20,49 @@ export interface WeatherData {
 }
 
 /**
- * Fetch weather data from OpenWeatherMap API
+ * Map 7timer weather codes to human-readable conditions
+ */
+const mapWeatherCode = (weatherCode: string): string => {
+  const codeMap: {[key: string]: string} = {
+    'clearday': 'Clear',
+    'clearnight': 'Clear',
+    'pcloudyday': 'Partly Cloudy',
+    'pcloudynight': 'Partly Cloudy',
+    'mcloudyday': 'Mostly Cloudy',
+    'mcloudynight': 'Mostly Cloudy',
+    'cloudyday': 'Cloudy',
+    'cloudynight': 'Cloudy',
+    'humidday': 'Humid',
+    'humidnight': 'Humid',
+    'lightrainday': 'Light Rain',
+    'lightrainnight': 'Light Rain',
+    'oshowerday': 'Occasional Showers',
+    'oshowernight': 'Occasional Showers',
+    'ishowerday': 'Isolated Showers',
+    'ishowernight': 'Isolated Showers',
+    'lightsnowday': 'Light Snow',
+    'lightsnownight': 'Light Snow',
+    'rainday': 'Rain',
+    'rainnight': 'Rain',
+    'snowday': 'Snow',
+    'snownight': 'Snow',
+    'rainsnowday': 'Rain and Snow',
+    'rainsnownight': 'Rain and Snow',
+    'tsday': 'Thunderstorm',
+    'tsnight': 'Thunderstorm',
+    'tsrainday': 'Thunderstorm with Rain',
+    'tsrainnight': 'Thunderstorm with Rain'
+  };
+  
+  return codeMap[weatherCode] || 'Unknown';
+};
+
+/**
+ * Fetch weather data from 7timer API
  */
 export const fetchWeatherData = async (lat: number, lon: number): Promise<WeatherData | { error: string }> => {
   try {
-    // Free OpenWeatherMap API doesn't require authentication for basic weather data
-    const apiKey = 'AIzaSyA-2ZBlyAEcfOOyTcit3-eD2MXyZ4uPHbM'; // This is your Gemini API key (used just as a placeholder)
-    const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,alerts&units=metric&appid=3c75c6c63d14f65e2d5dd57a97b3a600`;
+    const url = `https://www.7timer.info/bin/astro.php?lon=${lon}&lat=${lat}&ac=0&unit=metric&output=json&tzshift=0`;
     
     const response = await fetch(url);
     if (!response.ok) {
@@ -35,20 +71,28 @@ export const fetchWeatherData = async (lat: number, lon: number): Promise<Weathe
     
     const data = await response.json();
     
+    if (!data.dataseries || !Array.isArray(data.dataseries) || data.dataseries.length === 0) {
+      throw new Error('Invalid weather data format');
+    }
+    
+    // 7timer doesn't provide detailed current weather, so we'll use the first entry
+    const currentWeather = data.dataseries[0];
+    const forecast = data.dataseries.slice(1, 6);
+    
     // Process and format weather data
     const weatherData: WeatherData = {
       location: '', // This will be filled from geocoding
-      temperature: Math.round(data.current.temp),
-      condition: data.current.weather[0].main,
-      humidity: data.current.humidity,
-      windSpeed: data.current.wind_speed,
-      iconCode: data.current.weather[0].icon,
-      forecast: data.daily.slice(1, 6).map((day: any) => ({
-        date: new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' }),
-        condition: day.weather[0].main,
-        minTemp: Math.round(day.temp.min),
-        maxTemp: Math.round(day.temp.max),
-        iconCode: day.weather[0].icon
+      temperature: currentWeather.temp2m || 0,
+      condition: mapWeatherCode(currentWeather.weather || ''),
+      humidity: Math.round((currentWeather.rh2m || 0)),
+      windSpeed: currentWeather.wind10m?.speed || 0,
+      iconCode: currentWeather.weather || '',
+      forecast: forecast.map((day: any, index: number) => ({
+        date: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { weekday: 'short' }),
+        condition: mapWeatherCode(day.weather || ''),
+        minTemp: day.temp2m - 2, // 7timer doesn't provide min/max, so we approximate
+        maxTemp: day.temp2m + 2,
+        iconCode: day.weather || ''
       }))
     };
     
