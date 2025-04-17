@@ -7,7 +7,7 @@ import DestinationCard, { Destination } from '../components/DestinationCard';
 import DestinationDetail from '../components/DestinationDetail';
 import Footer from '../components/Footer';
 import { useToast } from '@/hooks/use-toast';
-import { Compass, Loader2 } from 'lucide-react';
+import { Compass, Loader2, AlertTriangle } from 'lucide-react';
 import { getTravelRecommendations } from '../utils/geminiApi';
 
 const Index = () => {
@@ -30,6 +30,11 @@ const Index = () => {
       
       if (recommendedDestinations.length === 0) {
         setSearchError("No destinations found within your budget. Try increasing your budget or changing your location.");
+        toast({
+          title: "No destinations found",
+          description: "Try increasing your budget or selecting a different location.",
+          variant: "destructive"
+        });
       } else {
         setDestinations(recommendedDestinations);
         toast({
@@ -39,7 +44,7 @@ const Index = () => {
       }
     } catch (error) {
       console.error("Error getting travel recommendations:", error);
-      setSearchError("An error occurred while fetching destinations. Please try again.");
+      setSearchError("An error occurred while fetching destinations. Please try again or check your internet connection.");
       toast({
         title: "Error",
         description: "Failed to get travel recommendations. Please try again.",
@@ -94,7 +99,11 @@ const Index = () => {
           
           {!isLoading && searchError && (
             <div className="text-center py-20">
-              <p className="text-travel-slate text-xl">{searchError}</p>
+              <div className="mx-auto w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                <AlertTriangle className="h-8 w-8 text-red-500" />
+              </div>
+              <h3 className="text-xl font-semibold text-travel-slate mb-2">Search Error</h3>
+              <p className="text-travel-slate max-w-lg mx-auto">{searchError}</p>
             </div>
           )}
           
