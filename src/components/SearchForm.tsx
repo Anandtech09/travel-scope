@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { MapPin, DollarSign, Search, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
-import { getCurrentLocation, reverseGeocode } from '@/utils/geolocation';
+import { getCurrentLocation, reverseGeocode, checkGeolocationPermission } from '@/utils/geolocation';
+import { fetchWeatherData, saveWeatherData } from '@/utils/weatherApi';
 
 interface SearchFormProps {
   onSearch: (location: string, budget: number) => void;
@@ -22,10 +23,27 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
   const [state, setState] = useState('');
   const [district, setDistrict] = useState('');
   const [gettingLocation, setGettingLocation] = useState(false);
+  const [permissionState, setPermissionState] = useState<string>('unknown');
+  const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
 
-  // Try to get the user's location when component mounts
+  // Check geolocation permission state when component mounts
   useEffect(() => {
-    getGeolocation();
+    const checkPermission = async () => {
+      const state = await checkGeolocationPermission();
+      setPermissionState(state);
+      
+      // If permission state is not determined yet, show the prompt
+      if (state === 'prompt') {
+        setShowPermissionPrompt(true);
+      } else if (state === 'granted') {
+        getGeolocation();
+      } else {
+        // If denied, show manual input
+        setShowManualInput(true);
+      }
+    };
+    
+    checkPermission();
   }, []);
 
   const getGeolocation = async () => {
@@ -33,6 +51,21 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
     try {
       const position = await getCurrentLocation();
       const { latitude, longitude } = position.coords;
+      
+      // Try to fetch weather data in parallel
+      fetchWeatherData(latitude, longitude)
+        .then((weatherData) => {
+          if ('error' in weatherData) {
+            console.error('Weather error:', weatherData.error);
+          } else {
+            // Set the location in the weather data
+            weatherData.location = location || 'Your Location';
+            saveWeatherData(weatherData);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching weather:', error);
+        });
       
       // Reverse geocode to get location name
       const locationData = await reverseGeocode(latitude, longitude);
@@ -65,6 +98,16 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
       setShowManualInput(true);
     } finally {
       setGettingLocation(false);
+      setShowPermissionPrompt(false);
+    }
+  };
+
+  const handlePermissionResponse = (granted: boolean) => {
+    setShowPermissionPrompt(false);
+    if (granted) {
+      getGeolocation();
+    } else {
+      setShowManualInput(true);
     }
   };
 
@@ -123,6 +166,30 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) 
 
   return (
     <Card className="w-full max-w-3xl mx-auto -mt-10 z-20 relative shadow-lg p-6 bg-white rounded-lg">
+      {showPermissionPrompt && (
+        <div className="bg-travel-lightBlue p-4 mb-6 rounded-lg">
+          <h3 className="font-medium text-travel-slate mb-2">Enable Location Services</h3>
+          <p className="text-sm text-travel-slate/80 mb-4">
+            Allow TravelScope to access your location for better travel recommendations and weather updates?
+          </p>
+          <div className="flex gap-3">
+            <Button 
+              variant="outline" 
+              className="text-travel-slate"
+              onClick={() => handlePermissionResponse(false)}
+            >
+              Not Now
+            </Button>
+            <Button 
+              className="bg-travel-teal text-white"
+              onClick={() => handlePermissionResponse(true)}
+            >
+              Allow Location Access
+            </Button>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">

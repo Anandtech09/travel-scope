@@ -22,6 +22,23 @@ export const getCurrentLocation = (): Promise<GeolocationPosition> => {
 };
 
 /**
+ * Check if geolocation permission is granted
+ */
+export const checkGeolocationPermission = async (): Promise<string> => {
+  if (!navigator.permissions || !navigator.permissions.query) {
+    return 'unknown';
+  }
+  
+  try {
+    const result = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
+    return result.state; // 'granted', 'denied', or 'prompt'
+  } catch (error) {
+    console.error('Error checking geolocation permission:', error);
+    return 'unknown';
+  }
+};
+
+/**
  * Reverse geocode coordinates to location name using OpenStreetMap's Nominatim
  */
 export const reverseGeocode = async (lat: number, lon: number): Promise<{
