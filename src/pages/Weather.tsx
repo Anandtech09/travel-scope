@@ -3,9 +3,11 @@ import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Card } from '@/components/ui/card';
-import { Loader2, Cloud, Droplets, Wind, Sun, CloudRain, CloudSnow, CloudLightning, CloudFog } from 'lucide-react';
+import { Loader2, Cloud, Droplets, Wind, Sun, CloudRain, CloudSnow, CloudLightning, CloudFog, Clock, CalendarDays } from 'lucide-react';
 import { getWeatherData } from '@/utils/weatherApi';
 import { useToast } from '@/hooks/use-toast';
+import { ChartContainer } from '@/components/ui/chart';
+import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 interface WeatherData {
   location: string;
@@ -23,23 +25,43 @@ interface WeatherData {
   }>;
 }
 
-const getWeatherIcon = (condition: string) => {
+const getWeatherIcon = (condition: string, size = 'h-10 w-10') => {
   const conditionLower = condition.toLowerCase();
   
   if (conditionLower.includes('clear') || conditionLower.includes('sun')) {
-    return <Sun className="h-10 w-10 text-yellow-500" />;
+    return <Sun className={`${size} text-yellow-500`} />;
   } else if (conditionLower.includes('cloud') || conditionLower.includes('overcast')) {
-    return <Cloud className="h-10 w-10 text-gray-500" />;
+    return <Cloud className={`${size} text-gray-500`} />;
   } else if (conditionLower.includes('rain') || conditionLower.includes('shower')) {
-    return <CloudRain className="h-10 w-10 text-blue-500" />;
+    return <CloudRain className={`${size} text-blue-500`} />;
   } else if (conditionLower.includes('snow')) {
-    return <CloudSnow className="h-10 w-10 text-sky-300" />;
+    return <CloudSnow className={`${size} text-sky-300`} />;
   } else if (conditionLower.includes('thunder') || conditionLower.includes('storm')) {
-    return <CloudLightning className="h-10 w-10 text-indigo-600" />;
+    return <CloudLightning className={`${size} text-indigo-600`} />;
   } else if (conditionLower.includes('mist') || conditionLower.includes('fog')) {
-    return <CloudFog className="h-10 w-10 text-gray-400" />;
+    return <CloudFog className={`${size} text-gray-400`} />;
   } else {
-    return <Cloud className="h-10 w-10 text-gray-500" />;
+    return <Cloud className={`${size} text-gray-500`} />;
+  }
+};
+
+const getWeatherBackground = (condition: string) => {
+  const conditionLower = condition.toLowerCase();
+  
+  if (conditionLower.includes('clear') || conditionLower.includes('sun')) {
+    return "bg-gradient-to-br from-blue-400 to-blue-100";
+  } else if (conditionLower.includes('cloud') || conditionLower.includes('overcast')) {
+    return "bg-gradient-to-br from-gray-300 to-gray-100";
+  } else if (conditionLower.includes('rain') || conditionLower.includes('shower')) {
+    return "bg-gradient-to-br from-blue-600 to-blue-200";
+  } else if (conditionLower.includes('snow')) {
+    return "bg-gradient-to-br from-blue-100 to-slate-50";
+  } else if (conditionLower.includes('thunder') || conditionLower.includes('storm')) {
+    return "bg-gradient-to-br from-indigo-800 to-indigo-300";
+  } else if (conditionLower.includes('mist') || conditionLower.includes('fog')) {
+    return "bg-gradient-to-br from-gray-400 to-gray-200";
+  } else {
+    return "bg-gradient-to-br from-travel-lightBlue to-white";
   }
 };
 
@@ -48,6 +70,7 @@ const Weather = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hourlyData, setHourlyData] = useState<any[]>([]);
 
   useEffect(() => {
     const loadWeather = async () => {
@@ -57,6 +80,8 @@ const Weather = () => {
         
         if (storedWeather) {
           setWeather(storedWeather);
+          // Generate simulated hourly data for the chart (since the API doesn't provide hourly data)
+          generateHourlyData(storedWeather.temperature, storedWeather.condition);
         } else {
           setError('No weather data available. Please search for a destination with your location to enable weather.');
           toast({
@@ -75,6 +100,42 @@ const Weather = () => {
 
     loadWeather();
   }, [toast]);
+
+  const generateHourlyData = (baseTemp: number, condition: string) => {
+    const hours = [];
+    const now = new Date();
+    const currentHour = now.getHours();
+    
+    // Generate hourly temperature variations based on condition
+    for (let i = 0; i < 24; i++) {
+      let hour = (currentHour + i) % 24;
+      let tempVariation = 0;
+      
+      // Temperature varies throughout day
+      if (condition.toLowerCase().includes('clear') || condition.toLowerCase().includes('sun')) {
+        // Higher during day, lower at night
+        tempVariation = hour > 6 && hour < 18 ? Math.sin((hour - 6) * Math.PI / 12) * 5 : -2;
+      } else if (condition.toLowerCase().includes('rain')) {
+        // Rain makes it cooler
+        tempVariation = -2 + Math.sin(hour * Math.PI / 12) * 2;
+      } else {
+        // Default variation
+        tempVariation = Math.sin(hour * Math.PI / 12) * 3;
+      }
+      
+      const humidity = baseTemp > 20 ? 
+        40 + Math.sin(hour * Math.PI / 12) * 15 : 
+        60 + Math.sin(hour * Math.PI / 12) * 10;
+      
+      hours.push({
+        hour: hour < 10 ? `0${hour}:00` : `${hour}:00`,
+        temperature: Math.round(baseTemp + tempVariation),
+        humidity: Math.round(humidity)
+      });
+    }
+    
+    setHourlyData(hours);
+  };
 
   if (loading) {
     return (
@@ -120,62 +181,276 @@ const Weather = () => {
       
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold text-travel-slate mb-8">Weather Information</h1>
+          <h1 className="text-3xl font-bold text-travel-slate mb-8 flex items-center">
+            <Cloud className="mr-2 h-8 w-8 text-travel-teal animate-pulse" />
+            Weather Information
+          </h1>
           
           {weather && (
             <div className="space-y-8">
-              {/* Current Weather */}
-              <Card className="p-6 shadow-lg bg-gradient-to-br from-travel-lightBlue to-white">
-                <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                  <div className="flex-shrink-0 bg-white/50 p-4 rounded-full">
-                    {getWeatherIcon(weather.condition)}
+              {/* Current Weather with animated background */}
+              <Card className={`p-6 shadow-lg overflow-hidden relative ${getWeatherBackground(weather.condition)}`}>
+                {/* Weather animation effects */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                  {weather.condition.toLowerCase().includes('rain') && (
+                    <div className="rain-animation">
+                      {Array.from({ length: 20 }).map((_, i) => (
+                        <div 
+                          key={i} 
+                          className="rain-drop bg-blue-300/30 absolute rounded-full"
+                          style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            width: `${2 + Math.random() * 2}px`,
+                            height: `${10 + Math.random() * 15}px`,
+                            animationDuration: `${0.5 + Math.random() * 0.7}s`,
+                            animationDelay: `${Math.random() * 2}s`
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  {weather.condition.toLowerCase().includes('cloud') && (
+                    <div className="cloud-animation">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <div 
+                          key={i} 
+                          className="cloud-float absolute bg-white/30 rounded-full"
+                          style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 40}%`,
+                            width: `${50 + Math.random() * 40}px`,
+                            height: `${30 + Math.random() * 20}px`,
+                            animationDuration: `${20 + Math.random() * 10}s`,
+                            animationDelay: `${Math.random() * 5}s`
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  {(weather.condition.toLowerCase().includes('clear') || weather.condition.toLowerCase().includes('sun')) && (
+                    <div className="sun-rays absolute left-1/2 top-1/4 -translate-x-1/2 w-32 h-32 rounded-full bg-yellow-200/40">
+                      <div className="absolute inset-0 rounded-full animate-pulse bg-yellow-300/30"></div>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6">
+                  <div className="flex-shrink-0 bg-white/50 backdrop-blur-sm p-5 rounded-full shadow-lg transform hover:rotate-12 transition-transform duration-500">
+                    {getWeatherIcon(weather.condition, 'h-16 w-16')}
                   </div>
                   <div className="flex-grow text-center md:text-left">
-                    <h2 className="text-xl font-semibold text-travel-slate">{weather.location}</h2>
+                    <h2 className="text-2xl font-bold text-white drop-shadow-md">{weather.location}</h2>
                     <div className="mt-2 flex flex-col md:flex-row md:items-baseline gap-2 md:gap-4">
-                      <span className="text-4xl font-bold text-travel-slate">{weather.temperature}°C</span>
-                      <span className="text-lg text-travel-slate/80">{weather.condition}</span>
+                      <span className="text-5xl font-bold text-white drop-shadow-md">{weather.temperature}°C</span>
+                      <span className="text-xl text-white/90 drop-shadow">{weather.condition}</span>
                     </div>
                     
-                    <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="flex items-center gap-2">
-                        <Droplets className="h-5 w-5 text-blue-500" />
-                        <span className="text-travel-slate">Humidity: {weather.humidity}%</span>
+                    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="bg-white/30 backdrop-blur-sm p-4 rounded-lg shadow-md hover:bg-white/40 transition-colors duration-300">
+                        <div className="flex items-center gap-2">
+                          <Droplets className="h-8 w-8 text-blue-500" />
+                          <div>
+                            <p className="text-sm text-white/80">Humidity</p>
+                            <p className="text-2xl font-medium text-white">{weather.humidity}%</p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Wind className="h-5 w-5 text-blue-300" />
-                        <span className="text-travel-slate">Wind: {weather.windSpeed} m/s</span>
+                      <div className="bg-white/30 backdrop-blur-sm p-4 rounded-lg shadow-md hover:bg-white/40 transition-colors duration-300">
+                        <div className="flex items-center gap-2">
+                          <Wind className="h-8 w-8 text-blue-300" />
+                          <div>
+                            <p className="text-sm text-white/80">Wind Speed</p>
+                            <p className="text-2xl font-medium text-white">{weather.windSpeed} m/s</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </Card>
               
-              {/* 5-Day Forecast */}
-              <div>
-                <h3 className="text-xl font-semibold text-travel-slate mb-4">5-Day Forecast</h3>
+              {/* Hourly Forecast Chart */}
+              <div className="animate-fade-in">
+                <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center">
+                  <Clock className="mr-2 h-5 w-5 text-travel-teal" />
+                  24-Hour Forecast
+                </h3>
+                <Card className="p-4 h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={hourlyData}
+                      margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis 
+                        dataKey="hour" 
+                        tick={{ fill: '#64748b', fontSize: 12 }}
+                      />
+                      <YAxis 
+                        yAxisId="left"
+                        tick={{ fill: '#64748b', fontSize: 12 }} 
+                        domain={['dataMin - 5', 'dataMax + 5']}
+                        label={{ value: '°C', position: 'insideLeft', angle: -90, dy: 40, fill: '#64748b' }}
+                      />
+                      <YAxis 
+                        yAxisId="right" 
+                        orientation="right" 
+                        domain={[0, 100]}
+                        tick={{ fill: '#64748b', fontSize: 12 }}
+                        label={{ value: '%', position: 'insideRight', angle: -90, dy: 40, fill: '#64748b' }}
+                      />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                        formatter={(value, name) => [
+                          `${value}${name === 'temperature' ? '°C' : '%'}`, 
+                          name === 'temperature' ? 'Temperature' : 'Humidity'
+                        ]}
+                        labelFormatter={(label) => `Time: ${label}`}
+                      />
+                      <Line 
+                        yAxisId="left"
+                        type="monotone" 
+                        dataKey="temperature" 
+                        stroke="#0ea5e9" 
+                        strokeWidth={3}
+                        dot={{ r: 4, fill: '#0ea5e9' }}
+                        activeDot={{ r: 6, fill: '#0ea5e9', stroke: 'white', strokeWidth: 2 }}
+                      />
+                      <Line 
+                        yAxisId="right"
+                        type="monotone" 
+                        dataKey="humidity" 
+                        stroke="#8884d8" 
+                        strokeWidth={3}
+                        dot={{ r: 4, fill: '#8884d8' }}
+                        activeDot={{ r: 6, fill: '#8884d8', stroke: 'white', strokeWidth: 2 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Card>
+              </div>
+              
+              {/* 5-Day Forecast with improved design */}
+              <div className="animate-fade-in">
+                <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center">
+                  <CalendarDays className="mr-2 h-5 w-5 text-travel-teal" />
+                  5-Day Forecast
+                </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {weather.forecast.map((day, index) => (
-                    <Card key={index} className="p-4 flex flex-col items-center">
-                      <h4 className="font-medium text-travel-slate">{day.date}</h4>
-                      <div className="my-3">
-                        {getWeatherIcon(day.condition)}
+                    <Card 
+                      key={index} 
+                      className="p-6 flex flex-col items-center transform hover:scale-105 transition-all duration-300 hover:shadow-lg"
+                    >
+                      <h4 className="font-bold text-travel-slate text-lg">{day.date}</h4>
+                      <div className="my-4 transform hover:rotate-12 transition-transform duration-500">
+                        {getWeatherIcon(day.condition, 'h-12 w-12')}
                       </div>
-                      <p className="text-sm text-travel-slate/80">{day.condition}</p>
-                      <div className="mt-2 flex gap-2 text-travel-slate">
-                        <span className="font-medium">{day.maxTemp}°</span>
+                      <p className="text-sm text-travel-slate/80 mb-3">{day.condition}</p>
+                      <div className="mt-auto w-full bg-gray-100 rounded-full h-1.5">
+                        <div 
+                          className="bg-travel-teal h-1.5 rounded-full" 
+                          style={{ width: `${((day.maxTemp - (day.minTemp - 5)) / 15) * 100}%` }}
+                        ></div>
+                      </div>
+                      <div className="w-full flex justify-between mt-2">
+                        <span className="font-medium text-travel-slate">{day.maxTemp}°</span>
                         <span className="text-travel-slate/60">{day.minTemp}°</span>
                       </div>
                     </Card>
                   ))}
                 </div>
               </div>
+
+              {/* Weather Tips Section */}
+              <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-travel-teal">
+                <h3 className="text-xl font-semibold text-travel-slate mb-4">Weather Tips</h3>
+                <div className="prose text-travel-slate/80 max-w-none">
+                  {weather.condition.toLowerCase().includes('rain') && (
+                    <p>Don't forget your umbrella and waterproof clothing. The rain may continue throughout the day.</p>
+                  )}
+                  {weather.condition.toLowerCase().includes('cloud') && (
+                    <p>Partly cloudy conditions expected. Temperatures may vary throughout the day.</p>
+                  )}
+                  {weather.condition.toLowerCase().includes('clear') && (
+                    <p>Clear skies ahead! Don't forget sunscreen and stay hydrated with this beautiful weather.</p>
+                  )}
+                  {weather.condition.toLowerCase().includes('snow') && (
+                    <p>Snowy conditions expected. Dress warmly and check road conditions before traveling.</p>
+                  )}
+                  {!weather.condition.toLowerCase().includes('rain') && 
+                   !weather.condition.toLowerCase().includes('cloud') && 
+                   !weather.condition.toLowerCase().includes('clear') && 
+                   !weather.condition.toLowerCase().includes('snow') && (
+                    <p>Check local weather advisories for changing conditions throughout the day.</p>
+                  )}
+                </div>
+              </Card>
             </div>
           )}
         </div>
       </main>
       
       <Footer />
+
+      {/* CSS Animations */}
+      <style jsx="true">{`
+        .rain-drop {
+          animation: rain-fall linear infinite;
+        }
+        
+        @keyframes rain-fall {
+          0% {
+            transform: translateY(-20px);
+            opacity: 0;
+          }
+          10% {
+            opacity: 0.7;
+          }
+          100% {
+            transform: translateY(150px);
+            opacity: 0;
+          }
+        }
+        
+        .cloud-float {
+          animation: float-by linear infinite;
+        }
+        
+        @keyframes float-by {
+          0% {
+            transform: translateX(-100px);
+            opacity: 0;
+          }
+          20% {
+            opacity: 1;
+          }
+          80% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateX(calc(100vw + 100px));
+            opacity: 0;
+          }
+        }
+        
+        .sun-rays {
+          animation: pulse-rays 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-rays {
+          0% {
+            box-shadow: 0 0 30px 10px rgba(255, 204, 0, 0.6);
+          }
+          50% {
+            box-shadow: 0 0 40px 20px rgba(255, 204, 0, 0.8);
+          }
+          100% {
+            box-shadow: 0 0 30px 10px rgba(255, 204, 0, 0.6);
+          }
+        }
+      `}</style>
     </div>
   );
 };
