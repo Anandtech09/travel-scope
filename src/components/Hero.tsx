@@ -1,6 +1,5 @@
 
 import React, { useEffect, useState } from 'react';
-import { Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Hero: React.FC = () => {
@@ -68,7 +67,12 @@ const Hero: React.FC = () => {
           AI-powered recommendations based on your budget and preferences
         </p>
         <Button className="bg-travel-teal hover:bg-travel-teal/90 text-white rounded-full px-8 py-6 text-lg shadow-lg animate-pulse-slow">
-          <Compass className="mr-2 h-5 w-5 animate-spin-slow" /> Start Exploring
+          <img 
+            src="/lovable-uploads/a94d164b-d29c-4e41-a1bd-66bda4912d48.png" 
+            alt="TravelScope" 
+            className="w-8 h-8 mr-2 object-contain animate-spin-slow" 
+          /> 
+          Start Exploring
         </Button>
       </div>
     </div>

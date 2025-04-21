@@ -65,6 +65,10 @@ const config = {
         "travel-teal": "#0EA5E9", // Main teal color
         "travel-slate": "#334155", // Slate text color 
         "travel-lightBlue": "#BAE6FD", // Light blue for gradients
+        "travel-orange": "#F97316", // Orange accent color
+        "travel-yellow": "#FBBF24", // Yellow accent color
+        "travel-green": "#10B981", // Green accent color
+        "travel-purple": "#8B5CF6", // Purple accent color
       },
       borderRadius: {
         lg: "var(--radius)",

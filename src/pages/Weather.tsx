@@ -7,7 +7,7 @@ import { Loader2, Cloud, Droplets, Wind, Sun, CloudRain, CloudSnow, CloudLightni
 import { getWeatherData } from '@/utils/weatherApi';
 import { useToast } from '@/hooks/use-toast';
 import { ChartContainer } from '@/components/ui/chart';
-import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 
 interface WeatherData {
   location: string;
@@ -49,19 +49,19 @@ const getWeatherBackground = (condition: string) => {
   const conditionLower = condition.toLowerCase();
   
   if (conditionLower.includes('clear') || conditionLower.includes('sun')) {
-    return "bg-gradient-to-br from-blue-400 to-blue-100";
+    return "bg-gradient-to-br from-blue-500 to-blue-200";
   } else if (conditionLower.includes('cloud') || conditionLower.includes('overcast')) {
-    return "bg-gradient-to-br from-gray-300 to-gray-100";
-  } else if (conditionLower.includes('rain') || conditionLower.includes('shower')) {
-    return "bg-gradient-to-br from-blue-600 to-blue-200";
-  } else if (conditionLower.includes('snow')) {
-    return "bg-gradient-to-br from-blue-100 to-slate-50";
-  } else if (conditionLower.includes('thunder') || conditionLower.includes('storm')) {
-    return "bg-gradient-to-br from-indigo-800 to-indigo-300";
-  } else if (conditionLower.includes('mist') || conditionLower.includes('fog')) {
     return "bg-gradient-to-br from-gray-400 to-gray-200";
+  } else if (conditionLower.includes('rain') || conditionLower.includes('shower')) {
+    return "bg-gradient-to-br from-blue-700 to-blue-300";
+  } else if (conditionLower.includes('snow')) {
+    return "bg-gradient-to-br from-blue-200 to-slate-100";
+  } else if (conditionLower.includes('thunder') || conditionLower.includes('storm')) {
+    return "bg-gradient-to-br from-indigo-800 to-indigo-400";
+  } else if (conditionLower.includes('mist') || conditionLower.includes('fog')) {
+    return "bg-gradient-to-br from-gray-500 to-gray-300";
   } else {
-    return "bg-gradient-to-br from-travel-lightBlue to-white";
+    return "bg-gradient-to-br from-travel-teal to-travel-lightBlue";
   }
 };
 
@@ -270,63 +270,65 @@ const Weather = () => {
                 </div>
               </Card>
               
-              {/* Hourly Forecast Chart */}
+              {/* Hourly Forecast Chart - Changed to BarChart */}
               <div className="animate-fade-in">
                 <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center">
                   <Clock className="mr-2 h-5 w-5 text-travel-teal" />
                   24-Hour Forecast
                 </h3>
-                <Card className="p-4 h-[300px]">
+                <Card className="p-4 h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
+                    <BarChart
                       data={hourlyData}
-                      margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+                      margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                       <XAxis 
                         dataKey="hour" 
-                        tick={{ fill: '#64748b', fontSize: 12 }}
+                        tick={{ fill: '#334155', fontSize: 12 }}
                       />
                       <YAxis 
                         yAxisId="left"
-                        tick={{ fill: '#64748b', fontSize: 12 }} 
+                        tick={{ fill: '#334155', fontSize: 12 }} 
                         domain={['dataMin - 5', 'dataMax + 5']}
-                        label={{ value: '°C', position: 'insideLeft', angle: -90, dy: 40, fill: '#64748b' }}
+                        label={{ value: '°C', position: 'insideLeft', angle: -90, dy: 40, fill: '#334155' }}
                       />
                       <YAxis 
                         yAxisId="right" 
                         orientation="right" 
                         domain={[0, 100]}
-                        tick={{ fill: '#64748b', fontSize: 12 }}
-                        label={{ value: '%', position: 'insideRight', angle: -90, dy: 40, fill: '#64748b' }}
+                        tick={{ fill: '#334155', fontSize: 12 }}
+                        label={{ value: '%', position: 'insideRight', angle: -90, dy: 40, fill: '#334155' }}
                       />
                       <Tooltip 
-                        contentStyle={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                        contentStyle={{ 
+                          backgroundColor: 'white', 
+                          borderRadius: '0.5rem', 
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                          color: '#334155'
+                        }}
                         formatter={(value, name) => [
                           `${value}${name === 'temperature' ? '°C' : '%'}`, 
                           name === 'temperature' ? 'Temperature' : 'Humidity'
                         ]}
                         labelFormatter={(label) => `Time: ${label}`}
                       />
-                      <Line 
+                      <Legend />
+                      <Bar 
                         yAxisId="left"
-                        type="monotone" 
                         dataKey="temperature" 
-                        stroke="#0ea5e9" 
-                        strokeWidth={3}
-                        dot={{ r: 4, fill: '#0ea5e9' }}
-                        activeDot={{ r: 6, fill: '#0ea5e9', stroke: 'white', strokeWidth: 2 }}
+                        fill="#0ea5e9" 
+                        name="Temperature"
+                        radius={[4, 4, 0, 0]}
                       />
-                      <Line 
+                      <Bar 
                         yAxisId="right"
-                        type="monotone" 
                         dataKey="humidity" 
-                        stroke="#8884d8" 
-                        strokeWidth={3}
-                        dot={{ r: 4, fill: '#8884d8' }}
-                        activeDot={{ r: 6, fill: '#8884d8', stroke: 'white', strokeWidth: 2 }}
+                        fill="#8884d8" 
+                        name="Humidity"
+                        radius={[4, 4, 0, 0]}
                       />
-                    </LineChart>
+                    </BarChart>
                   </ResponsiveContainer>
                 </Card>
               </div>
@@ -394,8 +396,9 @@ const Weather = () => {
       
       <Footer />
 
-      {/* CSS Animations */}
-      <style jsx="true">{`
+      {/* CSS Animations - Fix the TypeScript error by removing 'jsx' attribute */}
+      <style>
+        {`
         .rain-drop {
           animation: rain-fall linear infinite;
         }
@@ -450,7 +453,8 @@ const Weather = () => {
             box-shadow: 0 0 30px 10px rgba(255, 204, 0, 0.6);
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
