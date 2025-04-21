@@ -7,7 +7,7 @@ import { Loader2, Cloud, Droplets, Wind, Sun, CloudRain, CloudSnow, CloudLightni
 import { getWeatherData } from '@/utils/weatherApi';
 import { useToast } from '@/hooks/use-toast';
 import { ChartContainer } from '@/components/ui/chart';
-import { Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 
 interface WeatherData {
   location: string;
@@ -22,6 +22,12 @@ interface WeatherData {
     minTemp: number;
     maxTemp: number;
     iconCode: string;
+  }>;
+  hourly?: Array<{
+    time: string;
+    temperature: number;
+    humidity: number;
+    condition: string;
   }>;
 }
 
@@ -70,7 +76,8 @@ const Weather = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hourlyData, setHourlyData] = useState<any[]>([]);
+  const [temperatureData, setTemperatureData] = useState<any[]>([]);
+  const [humidityData, setHumidityData] = useState<any[]>([]);
 
   useEffect(() => {
     const loadWeather = async () => {
@@ -80,8 +87,22 @@ const Weather = () => {
         
         if (storedWeather) {
           setWeather(storedWeather);
-          // Generate simulated hourly data for the chart (since the API doesn't provide hourly data)
-          generateHourlyData(storedWeather.temperature, storedWeather.condition);
+          
+          // Set hourly data for charts if available
+          if (storedWeather.hourly && storedWeather.hourly.length > 0) {
+            setTemperatureData(storedWeather.hourly.map(hour => ({
+              time: hour.time,
+              temperature: hour.temperature
+            })));
+            
+            setHumidityData(storedWeather.hourly.map(hour => ({
+              time: hour.time,
+              humidity: hour.humidity
+            })));
+          } else {
+            // Generate simulated hourly data
+            generateHourlyData(storedWeather.temperature, storedWeather.condition);
+          }
         } else {
           setError('No weather data available. Please search for a destination with your location to enable weather.');
           toast({
@@ -102,7 +123,8 @@ const Weather = () => {
   }, [toast]);
 
   const generateHourlyData = (baseTemp: number, condition: string) => {
-    const hours = [];
+    const tempData = [];
+    const humidData = [];
     const now = new Date();
     const currentHour = now.getHours();
     
@@ -127,14 +149,19 @@ const Weather = () => {
         40 + Math.sin(hour * Math.PI / 12) * 15 : 
         60 + Math.sin(hour * Math.PI / 12) * 10;
       
-      hours.push({
-        hour: hour < 10 ? `0${hour}:00` : `${hour}:00`,
-        temperature: Math.round(baseTemp + tempVariation),
+      tempData.push({
+        time: hour < 10 ? `0${hour}:00` : `${hour}:00`,
+        temperature: Math.round(baseTemp + tempVariation)
+      });
+      
+      humidData.push({
+        time: hour < 10 ? `0${hour}:00` : `${hour}:00`,
         humidity: Math.round(humidity)
       });
     }
     
-    setHourlyData(hours);
+    setTemperatureData(tempData);
+    setHumidityData(humidData);
   };
 
   if (loading) {
@@ -270,35 +297,27 @@ const Weather = () => {
                 </div>
               </Card>
               
-              {/* Hourly Forecast Chart - Changed to BarChart */}
+              {/* 24-Hour Forecast Chart - Bar Chart */}
               <div className="animate-fade-in">
                 <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center">
                   <Clock className="mr-2 h-5 w-5 text-travel-teal" />
-                  24-Hour Forecast
+                  24-Hour Temperature Forecast
                 </h3>
                 <Card className="p-4 h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                      data={hourlyData}
-                      margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+                      data={temperatureData}
+                      margin={{ top: 20, right: 30, left: 10, bottom: 20 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                       <XAxis 
-                        dataKey="hour" 
+                        dataKey="time" 
                         tick={{ fill: '#334155', fontSize: 12 }}
                       />
                       <YAxis 
-                        yAxisId="left"
-                        tick={{ fill: '#334155', fontSize: 12 }} 
                         domain={['dataMin - 5', 'dataMax + 5']}
-                        label={{ value: '°C', position: 'insideLeft', angle: -90, dy: 40, fill: '#334155' }}
-                      />
-                      <YAxis 
-                        yAxisId="right" 
-                        orientation="right" 
-                        domain={[0, 100]}
                         tick={{ fill: '#334155', fontSize: 12 }}
-                        label={{ value: '%', position: 'insideRight', angle: -90, dy: 40, fill: '#334155' }}
+                        label={{ value: '°C', position: 'insideLeft', angle: -90, dy: 40, fill: '#334155' }}
                       />
                       <Tooltip 
                         contentStyle={{ 
@@ -307,25 +326,14 @@ const Weather = () => {
                           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                           color: '#334155'
                         }}
-                        formatter={(value, name) => [
-                          `${value}${name === 'temperature' ? '°C' : '%'}`, 
-                          name === 'temperature' ? 'Temperature' : 'Humidity'
-                        ]}
+                        formatter={(value) => [`${value}°C`, 'Temperature']}
                         labelFormatter={(label) => `Time: ${label}`}
                       />
                       <Legend />
                       <Bar 
-                        yAxisId="left"
                         dataKey="temperature" 
                         fill="#0ea5e9" 
                         name="Temperature"
-                        radius={[4, 4, 0, 0]}
-                      />
-                      <Bar 
-                        yAxisId="right"
-                        dataKey="humidity" 
-                        fill="#8884d8" 
-                        name="Humidity"
                         radius={[4, 4, 0, 0]}
                       />
                     </BarChart>
@@ -364,6 +372,50 @@ const Weather = () => {
                   ))}
                 </div>
               </div>
+              
+              {/* Histogram for Humidity Data */}
+              <div className="animate-fade-in">
+                <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center">
+                  <Droplets className="mr-2 h-5 w-5 text-travel-teal" />
+                  Humidity Histogram
+                </h3>
+                <Card className="p-4 h-[350px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={humidityData}
+                      margin={{ top: 20, right: 30, left: 10, bottom: 20 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis 
+                        dataKey="time" 
+                        tick={{ fill: '#334155', fontSize: 12 }}
+                      />
+                      <YAxis 
+                        domain={[0, 100]}
+                        tick={{ fill: '#334155', fontSize: 12 }}
+                        label={{ value: '%', position: 'insideLeft', angle: -90, dy: 40, fill: '#334155' }}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'white', 
+                          borderRadius: '0.5rem', 
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                          color: '#334155'
+                        }}
+                        formatter={(value) => [`${value}%`, 'Humidity']}
+                        labelFormatter={(label) => `Time: ${label}`}
+                      />
+                      <Legend />
+                      <Bar 
+                        dataKey="humidity" 
+                        fill="#8884d8" 
+                        name="Humidity"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Card>
+              </div>
 
               {/* Weather Tips Section */}
               <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-travel-teal">
@@ -396,7 +448,7 @@ const Weather = () => {
       
       <Footer />
 
-      {/* CSS Animations - Fix the TypeScript error by removing 'jsx' attribute */}
+      {/* CSS Animations */}
       <style>
         {`
         .rain-drop {

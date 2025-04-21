@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 
 const Hero: React.FC = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -33,29 +34,38 @@ const Hero: React.FC = () => {
       {/* Overlay gradient for text readability */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-travel-slate/30 via-transparent to-black/30"></div>
 
-      {/* Floating Elements */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        {/* Spinning Travel Icons */}
-        <div className="absolute top-[10%] left-[10%] animate-spin-slow">
-          <div className="w-12 h-12 rounded-full bg-travel-teal/20 flex items-center justify-center">
-            <span className="text-2xl">✈️</span>
-          </div>
-        </div>
-        <div className="absolute top-[20%] right-[15%] animate-spin-reverse-slow">
-          <div className="w-14 h-14 rounded-full bg-travel-lightBlue/20 flex items-center justify-center">
-            <span className="text-2xl">🌍</span>
-          </div>
-        </div>
-        <div className="absolute bottom-[25%] left-[20%] animate-float">
-          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-            <span className="text-xl">🧳</span>
-          </div>
-        </div>
-        <div className="absolute bottom-[15%] right-[20%] animate-float-delay">
-          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-            <span className="text-xl">📸</span>
-          </div>
-        </div>
+      {/* Travel Icons Popup */}
+      <div className="absolute right-8 top-8 z-10">
+        <Popover>
+          <PopoverTrigger>
+            <div className="w-12 h-12 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center border border-white/50 cursor-pointer hover:bg-white/40 transition-all shadow-lg">
+              <span className="text-lg">🌐</span>
+            </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-4 bg-white/90 backdrop-blur-md">
+            <div className="space-y-3">
+              <h3 className="font-medium text-travel-slate">Travel Icons</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center space-x-2 p-2 bg-travel-lightBlue/20 rounded-md">
+                  <span className="text-xl">✈️</span>
+                  <span className="text-sm text-travel-slate">Flights</span>
+                </div>
+                <div className="flex items-center space-x-2 p-2 bg-travel-lightBlue/20 rounded-md">
+                  <span className="text-xl">🌍</span>
+                  <span className="text-sm text-travel-slate">Destinations</span>
+                </div>
+                <div className="flex items-center space-x-2 p-2 bg-travel-lightBlue/20 rounded-md">
+                  <span className="text-xl">🧳</span>
+                  <span className="text-sm text-travel-slate">Luggage</span>
+                </div>
+                <div className="flex items-center space-x-2 p-2 bg-travel-lightBlue/20 rounded-md">
+                  <span className="text-xl">📸</span>
+                  <span className="text-sm text-travel-slate">Photos</span>
+                </div>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
       
       {/* Hero Content */}

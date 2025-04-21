@@ -21,11 +21,11 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-4">
           <Link to="/" className="flex items-center space-x-2">
-            <span className="relative h-8 w-8">
-              <span className="absolute inset-0 rounded-full bg-travel-teal opacity-20" />
-              <span className="absolute inset-[2px] rounded-full border-2 border-travel-teal" />
-              <span className="absolute inset-[5px] rounded-full bg-travel-teal" />
-            </span>
+            <img 
+              src="/lovable-uploads/a94d164b-d29c-4e41-a1bd-66bda4912d48.png" 
+              alt="TravelScope Logo" 
+              className="h-8 w-8 object-contain"
+            />
             <span className="text-xl font-bold text-travel-slate">TravelScope</span>
           </Link>
 
@@ -50,10 +50,6 @@ const Header = () => {
                 <span>Weather</span>
               </Link>
             )}
-            
-            <Button className="bg-travel-teal text-white hover:bg-travel-teal/90">
-              Sign In
-            </Button>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -97,13 +93,6 @@ const Header = () => {
                   <span>Weather</span>
                 </Link>
               )}
-              
-              <Button 
-                className="bg-travel-teal text-white hover:bg-travel-teal/90 w-full justify-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Sign In
-              </Button>
             </nav>
           </div>
         )}
