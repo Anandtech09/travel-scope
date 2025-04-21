@@ -1,90 +1,208 @@
 
 import React, { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Map } from 'lucide-react';
+
+const THEME_OPTIONS = [
+  { label: "Light", value: "light" },
+  { label: "Dark", value: "dark" },
+  { label: "Custom", value: "custom" },
+];
+
+const LANG_OPTIONS = [
+  { label: "English", value: "en" },
+  { label: "Malayalam", value: "ml" },
+  { label: "Tamil", value: "ta" },
+  { label: "Hindi", value: "hi" },
+];
+
+const pngLayerImgs = [
+  "https://pngimg.com/uploads/airplane/airplane_PNG5445.png",
+  "https://pngimg.com/uploads/passport/passport_PNG19.png",
+  "https://pngimg.com/uploads/camera/camera_PNG101412.png",
+  "https://pngimg.com/uploads/suitcase/suitcase_PNG37.png",
+];
 
 const Hero: React.FC = () => {
   const [scrollY, setScrollY] = useState(0);
+  const [themeOpen, setThemeOpen] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
+  const [exploding, setExploding] = useState(false);
+  const [theme, setTheme] = useState("light");
+  const [language, setLanguage] = useState("en");
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-
-    // Add scroll event listener for parallax effect
+    const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Theme/language action handlers (stub actions)
+  const handleThemeChange = (val: string) => {
+    setTheme(val);
+    document.documentElement.classList.remove('dark');
+    if(val === "dark") {
+      document.documentElement.classList.add('dark');
+    }
+    setThemeOpen(false);
+  };
+
+  const handleLanguageChange = (val: string) => {
+    setLanguage(val);
+    setLanguageOpen(false);
+  };
+
+  // Exploding animation on map icon (on hover)
+  const onMapHover = () => setExploding(true);
+  const onMapLeave = () => setExploding(false);
+
   return (
-    <div className="relative w-full h-[60vh] md:h-[70vh] overflow-hidden hero-gradient flex items-center justify-center">
-      {/* Parallax Background Image */}
+    <div className="relative w-full h-[65vh] md:h-[75vh] overflow-hidden hero-gradient flex items-center justify-center font-passero-one select-none">
+      {/* Parallax PNG layers */}
+      {pngLayerImgs.map((img, idx) => (
+        <img
+          key={img}
+          src={img}
+          alt={`parallax-img-${idx}`}
+          style={{
+            left: `${10 + idx * 20}%`,
+            top: `${5 + idx * 15}%`,
+            transform: `translateY(${(scrollY * (0.2 + idx * 0.07))}px) scale(0.6)`,
+            zIndex: 2 + idx,
+          }}
+          className={`pointer-events-none absolute w-24 h-24 object-contain opacity-60 animate-float${idx % 2 === 0 ? '' : '-delay'}`}
+        />
+      ))}
+      {/* Parallax BG */}
       <div 
-        className="absolute inset-0 z-0 bg-cover bg-center transform scale-110"
+        className="absolute inset-0 z-0 bg-cover bg-center scale-110"
         style={{
           backgroundImage: "url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1920&q=80')",
-          transform: `translateY(${scrollY * 0.3}px) scale(1.1)`,
-          transition: 'transform 0.1s cubic-bezier(0.2, 0, 0.8, 1)'
+          transform: `translateY(${scrollY * 0.3}px) scale(1.08)`,
+          transition: 'transform 0.1s cubic-bezier(0.2,0,0.8,1)'
         }}
       />
-      
-      {/* Overlay gradient for text readability */}
+      {/* Overlay for text readability */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-travel-slate/30 via-transparent to-black/30"></div>
 
-      {/* Travel Icons Popup */}
+      {/* Travel icon circle popup with Theme + Language */}
       <div className="absolute right-8 top-8 z-10">
         <Popover>
-          <PopoverTrigger>
-            <div className="w-12 h-12 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center border border-white/50 cursor-pointer hover:bg-white/40 transition-all shadow-lg">
-              <span className="text-lg">🌐</span>
-            </div>
+          <PopoverTrigger asChild>
+            <button className="w-14 h-14 rounded-full bg-white/70 border-4 border-travel-teal shadow-lg flex items-center justify-center hover:scale-110 transition-transform relative group">
+              <span className="block w-10 h-10 rounded-full bg-gradient-to-tr from-travel-orange via-travel-yellow to-travel-teal flex items-center justify-center text-3xl font-bold animate-spin-reverse-slow">
+                {/* Only an abstract circle now */}
+                <span className="relative z-10 block" />
+              </span>
+              {/* Central + sign */}
+              <span className="absolute text-travel-slate text-lg font-bold inset-0 flex items-center justify-center pointer-events-none">+</span>
+            </button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-4 bg-white/90 backdrop-blur-md">
-            <div className="space-y-3">
-              <h3 className="font-medium text-travel-slate">Travel Icons</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center space-x-2 p-2 bg-travel-lightBlue/20 rounded-md">
-                  <span className="text-xl">✈️</span>
-                  <span className="text-sm text-travel-slate">Flights</span>
+          <PopoverContent className="w-64 p-5 bg-white/90 backdrop-blur-lg font-passero-one" align="end">
+            <h3 className="font-semibold text-xl text-travel-slate mb-4 font-kalnia-glaze">TravelScope Options</h3>
+            {/* Theme picker */}
+            <div className="mb-1">
+              <button
+                className="w-full flex justify-between items-center bg-travel-lightBlue/30 rounded px-3 py-2 mb-2 hover:bg-travel-lightBlue/60 focus:outline-none"
+                onClick={() => setThemeOpen(!themeOpen)}
+              >
+                <span className="font-semibold">Theme</span>
+                <span className="text-sm text-travel-slate opacity-70">{THEME_OPTIONS.find(t=>t.value===theme)?.label}</span>
+              </button>
+              {themeOpen && (
+                <div className="flex flex-col px-4 pb-2 space-y-2 animate-fade-in">
+                  {THEME_OPTIONS.map(opt=>(
+                    <button
+                      key={opt.value}
+                      className={`w-full text-left py-1 rounded hover:bg-travel-teal/20 ${theme === opt.value ? "font-bold text-travel-teal" : "text-travel-slate"}`}
+                      onClick={()=>handleThemeChange(opt.value)}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
                 </div>
-                <div className="flex items-center space-x-2 p-2 bg-travel-lightBlue/20 rounded-md">
-                  <span className="text-xl">🌍</span>
-                  <span className="text-sm text-travel-slate">Destinations</span>
+              )}
+            </div>
+            {/* Language picker */}
+            <div>
+              <button
+                className="w-full flex justify-between items-center bg-travel-lightBlue/30 rounded px-3 py-2 mb-2 hover:bg-travel-lightBlue/60 focus:outline-none"
+                onClick={() => setLanguageOpen(!languageOpen)}
+              >
+                <span className="font-semibold">Language</span>
+                <span className="text-sm text-travel-slate opacity-70">{LANG_OPTIONS.find(t=>t.value===language)?.label}</span>
+              </button>
+              {languageOpen && (
+                <div className="flex flex-col px-4 pb-2 space-y-2 animate-fade-in">
+                  {LANG_OPTIONS.map(opt=>(
+                    <button
+                      key={opt.value}
+                      className={`w-full text-left py-1 rounded hover:bg-travel-teal/20 ${language === opt.value ? "font-bold text-travel-teal" : "text-travel-slate"}`}
+                      onClick={()=>handleLanguageChange(opt.value)}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
                 </div>
-                <div className="flex items-center space-x-2 p-2 bg-travel-lightBlue/20 rounded-md">
-                  <span className="text-xl">🧳</span>
-                  <span className="text-sm text-travel-slate">Luggage</span>
-                </div>
-                <div className="flex items-center space-x-2 p-2 bg-travel-lightBlue/20 rounded-md">
-                  <span className="text-xl">📸</span>
-                  <span className="text-sm text-travel-slate">Photos</span>
-                </div>
-              </div>
+              )}
             </div>
           </PopoverContent>
         </Popover>
       </div>
-      
+
       {/* Hero Content */}
       <div className="z-10 text-center px-4 max-w-3xl mx-auto animate-fade-in">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg mb-4">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg mb-4 font-passero-one">
           Discover Your Perfect Destination
         </h1>
         <p className="text-lg md:text-xl text-white/90 drop-shadow mb-8">
           AI-powered recommendations based on your budget and preferences
         </p>
-        <Button className="bg-travel-teal hover:bg-travel-teal/90 text-white rounded-full px-8 py-6 text-lg shadow-lg animate-pulse-slow">
-          <img 
-            src="/lovable-uploads/a94d164b-d29c-4e41-a1bd-66bda4912d48.png" 
-            alt="TravelScope" 
-            className="w-8 h-8 mr-2 object-contain animate-spin-slow" 
-          /> 
+        {/* Start Exploring Button - map icon with explode hover */}
+        <button
+          className="relative bg-travel-teal hover:bg-travel-teal/90 text-white rounded-full px-8 py-6 text-lg shadow-lg font-passero-one flex items-center justify-center mx-auto transition-all duration-300"
+          onMouseEnter={onMapHover}
+          onMouseLeave={onMapLeave}
+        >
+          <span className={`transition-all duration-300 mr-2 ${exploding ? "scale-125 animate-explode" : ""}`}>
+            <Map className={`w-8 h-8 ${exploding ? "text-yellow-300" : "text-white"} transition-all duration-300`} />
+          </span>
           Start Exploring
-        </Button>
+        </button>
       </div>
+      {/* How Travelscope Works */}
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-2 z-20 w-[90vw] sm:w-2/3 max-w-2xl">
+        <div className="card-gradient rounded-lg shadow-2xl backdrop-blur-lg border border-travel-teal/20 py-7 px-8 md:px-12 flex flex-col md:flex-row items-center gap-7 animate-fade-in hover:scale-105 transition-transform duration-500 cursor-pointer group ring-2 ring-white ring-opacity-0 hover:ring-opacity-50">
+          <div className="flex-1">
+            <h3 className="text-2xl md:text-3xl font-bold text-travel-slate mb-2 drop-shadow font-kalnia-glaze">How Travelscope Works</h3>
+            <ul className="text-travel-slate/90 font-passero-one text-base md:text-lg space-y-1">
+              <li className="flex items-center gap-2"><span className="w-7 h-7 rounded-full bg-travel-orange/80 text-white flex items-center justify-center font-bold mr-2">1</span> Enter your location and budget</li>
+              <li className="flex items-center gap-2"><span className="w-7 h-7 rounded-full bg-travel-teal/80 text-white flex items-center justify-center font-bold mr-2">2</span> Get AI-powered destination recommendations</li>
+              <li className="flex items-center gap-2"><span className="w-7 h-7 rounded-full bg-travel-yellow/80 text-travel-slate flex items-center justify-center font-bold mr-2">3</span> Seamlessly explore detailed info with graphs & insights</li>
+              <li className="flex items-center gap-2"><span className="w-7 h-7 rounded-full bg-travel-green/80 text-white flex items-center justify-center font-bold mr-2">4</span> Generate a trip plan with one click</li>
+            </ul>
+          </div>
+          <div className="flex-1 flex items-center justify-center">
+            <img
+              src="https://pngimg.com/uploads/suitcase/suitcase_PNG105.png"
+              alt="Info"
+              className="w-28 h-28 object-contain md:animate-bounce animate-fade-in"
+            />
+          </div>
+        </div>
+      </div>
+      {/* Keyframes for explode */}
+      <style>{`
+        @keyframes explode {
+          0% { transform: scale(1) rotate(0deg);}
+          40% { transform: scale(1.7) rotate(20deg);}
+          60% { transform: scale(0.9) rotate(-10deg);}
+          100% { transform: scale(1) rotate(0deg);}
+        }
+        .animate-explode {
+          animation: explode 0.55s cubic-bezier(.22,2,.22,1) 1;
+        }
+      `}</style>
     </div>
   );
 };

@@ -1,4 +1,11 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Passero+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kalnia:wdth,wght@85..125,100..900&display=swap');
+
+/* Custom font classes */
+.font-passero-one { font-family: 'Passero One', cursive, sans-serif; }
+.font-kalnia-glaze { font-family: 'Kalnia', serif; }
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
