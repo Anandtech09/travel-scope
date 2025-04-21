@@ -60,13 +60,13 @@ const config = {
         "sidebar-accent-foreground": "hsl(var(--sidebar-accent-foreground))",
         "sidebar-border": "hsl(var(--sidebar-border))",
         "sidebar-ring": "hsl(var(--sidebar-ring))",
-        "travel-teal": "#0EA5E9", // Main teal color
-        "travel-slate": "#334155", // Slate text color 
-        "travel-lightBlue": "#BAE6FD", // Light blue for gradients
-        "travel-orange": "#F97316", // Orange accent color
-        "travel-yellow": "#FBBF24", // Yellow accent color
-        "travel-green": "#10B981", // Green accent color
-        "travel-purple": "#8B5CF6", // Purple accent color
+        "travel-teal": "#0EA5E9",
+        "travel-slate": "#334155",
+        "travel-lightBlue": "#BAE6FD",
+        "travel-orange": "#F97316",
+        "travel-yellow": "#FBBF24",
+        "travel-green": "#10B981",
+        "travel-purple": "#8B5CF6",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -75,6 +75,7 @@ const config = {
       },
       fontFamily: {
         ...fontFamily,
+        sans: ['"Passero One"', 'cursive', ...fontFamily.sans],
         'passero-one': ['"Passero One"', 'cursive'],
         'kalnia-glaze': ['"Kalnia"', 'serif'],
       },
