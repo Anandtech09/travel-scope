@@ -1,7 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { Map, Globe } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Globe, Map } from 'lucide-react';
 
 const THEME_OPTIONS = [
   { label: "Light", value: "light" },
@@ -16,24 +18,25 @@ const LANG_OPTIONS = [
   { label: "Hindi", value: "hi" },
 ];
 
-const pngLayerImgs = [
-  "https://pngimg.com/uploads/airplane/airplane_PNG5445.png",
-  "https://pngimg.com/uploads/passport/passport_PNG19.png",
-  "https://pngimg.com/uploads/camera/camera_PNG101412.png",
-  "https://pngimg.com/uploads/suitcase/suitcase_PNG37.png",
-  // Add more PNGs for stronger parallax
-  "https://pngimg.com/uploads/world_map/world_map_PNG47.png",
-  "https://pngimg.com/uploads/compass/compass_PNG59.png",
-  "https://pngimg.com/uploads/hot_air_balloon/hot_air_balloon_PNG18.png",
+// Fixed background images instead of PNG layers
+const backgroundImages = [
+  "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800",
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800",
+  "https://images.unsplash.com/photo-1531761535209-180757000d30?auto=format&fit=crop&w=800",
+  "https://images.unsplash.com/photo-1467377791767-c929b5dc9a23?auto=format&fit=crop&w=800",
+  "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800",
 ];
 
 const Hero: React.FC = () => {
   const [scrollY, setScrollY] = useState(0);
   const [themeOpen, setThemeOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
-  const [exploding, setExploding] = useState(false);
   const [theme, setTheme] = useState("light");
   const [language, setLanguage] = useState("en");
+  const [customThemeOpen, setCustomThemeOpen] = useState(false);
+  const [primaryColor, setPrimaryColor] = useState("#0EA5E9");
+  const [accentColor, setAccentColor] = useState("#F97316");
+  const [mapHovered, setMapHovered] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -42,48 +45,72 @@ const Hero: React.FC = () => {
   }, []);
 
   const handleThemeChange = (val: string) => {
-    setTheme(val);
-    document.documentElement.classList.remove('dark');
-    if(val === "dark") {
-      document.documentElement.classList.add('dark');
+    if (val === "custom") {
+      setCustomThemeOpen(true);
+    } else {
+      setTheme(val);
+      document.documentElement.classList.remove('dark');
+      if(val === "dark") {
+        document.documentElement.classList.add('dark');
+      }
     }
     setThemeOpen(false);
   };
 
   const handleLanguageChange = (val: string) => {
     setLanguage(val);
+    // Show a toast notification about language change
+    const event = new CustomEvent('showToast', { 
+      detail: { 
+        title: 'Language Changed', 
+        description: `Language set to ${LANG_OPTIONS.find(lang => lang.value === val)?.label}` 
+      } 
+    });
+    document.dispatchEvent(event);
     setLanguageOpen(false);
   };
 
-  const onMapHover = () => setExploding(true);
-  const onMapLeave = () => setExploding(false);
+  const handleCustomThemeApply = () => {
+    setTheme("custom");
+    document.documentElement.classList.remove('dark');
+    
+    // Apply custom colors as CSS variables
+    document.documentElement.style.setProperty('--primary', primaryColor);
+    document.documentElement.style.setProperty('--accent', accentColor);
+    
+    setCustomThemeOpen(false);
+  };
 
   return (
     <div className="relative w-full h-[65vh] md:h-[75vh] overflow-hidden hero-gradient flex items-center justify-center font-passero-one select-none">
-      {/* Parallax PNG layers */}
-      {pngLayerImgs.map((img, idx) => (
-        <img
-          key={img}
-          src={img}
-          alt={`parallax-img-${idx}`}
+      {/* Background Images */}
+      <div className="absolute inset-0 z-0">
+        {/* Main background image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
           style={{
-            left: `${10 + idx * 12}%`,
-            top: `${5 + idx * 10}%`,
-            transform: `translateY(${(scrollY * (0.14 + idx * 0.06))}px) scale(0.56)`,
-            zIndex: 2 + idx,
+            backgroundImage: "url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1920&q=80')",
           }}
-          className={`pointer-events-none absolute w-20 h-20 md:w-24 md:h-24 object-contain opacity-60 animate-float${idx % 2 === 0 ? '' : '-delay'}`}
         />
-      ))}
-      {/* Parallax BG */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center scale-110"
-        style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1920&q=80')",
-          transform: `translateY(${scrollY * 0.3}px) scale(1.08)`,
-          transition: 'transform 0.1s cubic-bezier(0.2,0,0.8,1)'
-        }}
-      />
+        
+        {/* Additional location images as background decorations - fixed position */}
+        {backgroundImages.map((img, idx) => (
+          <div
+            key={idx}
+            className="absolute bg-cover bg-center rounded-lg shadow-lg overflow-hidden opacity-50"
+            style={{
+              width: `${100 + idx * 20}px`,
+              height: `${100 + idx * 20}px`,
+              left: `${10 + idx * 15}%`,
+              top: `${5 + idx * 12}%`,
+              backgroundImage: `url(${img})`,
+              transform: 'rotate(' + (idx * 5 - 10) + 'deg)',
+              zIndex: 1 + idx,
+            }}
+          />
+        ))}
+      </div>
+      
       {/* Overlay for text readability */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-travel-slate/30 via-transparent to-black/30"></div>
 
@@ -92,29 +119,26 @@ const Hero: React.FC = () => {
         <Popover>
           <PopoverTrigger asChild>
             <button className="w-14 h-14 rounded-full bg-white/70 border-4 border-travel-teal shadow-lg flex items-center justify-center hover:scale-110 transition-transform relative group">
-              <span className="block w-10 h-10 rounded-full bg-gradient-to-tr from-travel-orange via-travel-yellow to-travel-teal flex items-center justify-center text-3xl font-bold animate-spin-reverse-slow">
-                <Globe className="w-8 h-8 text-travel-teal" />
-              </span>
-              {/* Remove any plus symbol or text here */}
+              <Globe className="w-8 h-8 text-travel-teal" />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-5 bg-white/90 backdrop-blur-lg font-passero-one" align="end">
-            <h3 className="font-semibold text-xl text-travel-slate mb-4 font-kalnia-glaze">TravelScope Options</h3>
+          <PopoverContent className="w-64 p-5 bg-white/90 backdrop-blur-lg dark:bg-travel-slate/90 dark:text-white font-passero-one" align="end">
+            <h3 className="font-semibold text-xl text-travel-slate dark:text-white mb-4 font-kalnia-glaze">TravelScope Options</h3>
             {/* Theme picker */}
             <div className="mb-1">
               <button
-                className="w-full flex justify-between items-center bg-travel-lightBlue/30 rounded px-3 py-2 mb-2 hover:bg-travel-lightBlue/60 focus:outline-none"
+                className="w-full flex justify-between items-center bg-travel-lightBlue/30 dark:bg-travel-slate/50 rounded px-3 py-2 mb-2 hover:bg-travel-lightBlue/60 dark:hover:bg-travel-slate/30 focus:outline-none"
                 onClick={() => setThemeOpen(!themeOpen)}
               >
                 <span className="font-semibold">Theme</span>
-                <span className="text-sm text-travel-slate opacity-70">{THEME_OPTIONS.find(t=>t.value===theme)?.label}</span>
+                <span className="text-sm text-travel-slate dark:text-white opacity-70">{THEME_OPTIONS.find(t=>t.value===theme)?.label}</span>
               </button>
               {themeOpen && (
                 <div className="flex flex-col px-4 pb-2 space-y-2 animate-fade-in">
                   {THEME_OPTIONS.map(opt=>(
                     <button
                       key={opt.value}
-                      className={`w-full text-left py-1 rounded hover:bg-travel-teal/20 ${theme === opt.value ? "font-bold text-travel-teal" : "text-travel-slate"}`}
+                      className={`w-full text-left py-1 rounded hover:bg-travel-teal/20 ${theme === opt.value ? "font-bold text-travel-teal dark:text-travel-lightBlue" : "text-travel-slate dark:text-white"}`}
                       onClick={()=>handleThemeChange(opt.value)}
                     >
                       {opt.label}
@@ -126,18 +150,18 @@ const Hero: React.FC = () => {
             {/* Language picker */}
             <div>
               <button
-                className="w-full flex justify-between items-center bg-travel-lightBlue/30 rounded px-3 py-2 mb-2 hover:bg-travel-lightBlue/60 focus:outline-none"
+                className="w-full flex justify-between items-center bg-travel-lightBlue/30 dark:bg-travel-slate/50 rounded px-3 py-2 mb-2 hover:bg-travel-lightBlue/60 dark:hover:bg-travel-slate/30 focus:outline-none"
                 onClick={() => setLanguageOpen(!languageOpen)}
               >
                 <span className="font-semibold">Language</span>
-                <span className="text-sm text-travel-slate opacity-70">{LANG_OPTIONS.find(t=>t.value===language)?.label}</span>
+                <span className="text-sm text-travel-slate dark:text-white opacity-70">{LANG_OPTIONS.find(t=>t.value===language)?.label}</span>
               </button>
               {languageOpen && (
                 <div className="flex flex-col px-4 pb-2 space-y-2 animate-fade-in">
                   {LANG_OPTIONS.map(opt=>(
                     <button
                       key={opt.value}
-                      className={`w-full text-left py-1 rounded hover:bg-travel-teal/20 ${language === opt.value ? "font-bold text-travel-teal" : "text-travel-slate"}`}
+                      className={`w-full text-left py-1 rounded hover:bg-travel-teal/20 ${language === opt.value ? "font-bold text-travel-teal dark:text-travel-lightBlue" : "text-travel-slate dark:text-white"}`}
                       onClick={()=>handleLanguageChange(opt.value)}
                     >
                       {opt.label}
@@ -150,6 +174,46 @@ const Hero: React.FC = () => {
         </Popover>
       </div>
 
+      {/* Custom Theme Dialog */}
+      <Dialog open={customThemeOpen} onOpenChange={setCustomThemeOpen}>
+        <DialogContent className="font-passero-one">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-passero-one">Customize Your Theme</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none">Primary Color</label>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="color"
+                  value={primaryColor}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  className="h-10 w-10 cursor-pointer rounded border"
+                />
+                <span className="text-sm">{primaryColor}</span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none">Accent Color</label>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="color" 
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  className="h-10 w-10 cursor-pointer rounded border"
+                />
+                <span className="text-sm">{accentColor}</span>
+              </div>
+            </div>
+            <div className="pt-2">
+              <Button onClick={handleCustomThemeApply} className="w-full font-passero-one">
+                Apply Custom Theme
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Hero Content */}
       <div className="z-10 text-center px-4 max-w-3xl mx-auto animate-fade-in">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg mb-4 font-passero-one">
@@ -158,36 +222,18 @@ const Hero: React.FC = () => {
         <p className="text-lg md:text-xl text-white/90 drop-shadow mb-8 font-passero-one">
           AI-powered recommendations based on your budget and preferences
         </p>
-        {/* Start Exploring Button with Map icon */}
+        {/* Start Exploring Button with Map icon - simplified animation */}
         <button
           className="relative bg-travel-teal hover:bg-travel-teal/90 text-white rounded-full px-8 py-6 text-lg shadow-lg font-passero-one flex items-center justify-center mx-auto transition-all duration-300"
-          onMouseEnter={onMapHover}
-          onMouseLeave={onMapLeave}
+          onMouseEnter={() => setMapHovered(true)}
+          onMouseLeave={() => setMapHovered(false)}
         >
-          <span className={`transition-all duration-300 mr-2 ${exploding ? "scale-125 animate-explode" : ""}`}>
-            <Map className={`w-8 h-8 ${exploding ? "text-yellow-300" : "text-white"} transition-all duration-300`} />
-          </span>
+          <Map className={`w-8 h-8 mr-2 transition-colors duration-300 ${mapHovered ? "text-yellow-300" : "text-white"}`} />
           Start Exploring
         </button>
       </div>
-
-      {/* How Travelscope Works card has been removed as per your request */}
-
-      {/* Keyframes for explode */}
-      <style>{`
-        @keyframes explode {
-          0% { transform: scale(1) rotate(0deg);}
-          40% { transform: scale(1.7) rotate(20deg);}
-          60% { transform: scale(0.9) rotate(-10deg);}
-          100% { transform: scale(1) rotate(0deg);}
-        }
-        .animate-explode {
-          animation: explode 0.55s cubic-bezier(.22,2,.22,1) 1;
-        }
-      `}</style>
     </div>
   );
 };
 
 export default Hero;
-

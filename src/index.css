@@ -112,7 +112,7 @@ body, html, .font-passero-one, * {
   }
   
   .destination-card {
-    @apply relative overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:shadow-xl;
+    @apply relative overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:shadow-xl border border-gray-200 dark:border-gray-700;
   }
 
   .destination-card:hover img {
@@ -121,6 +121,15 @@ body, html, .font-passero-one, * {
 
   .destination-card img {
     @apply transition-all duration-700 ease-in-out;
+  }
+  
+  /* Add dark mode support for cards and content */
+  .dark .destination-card {
+    @apply bg-travel-slate/90 text-white;
+  }
+  
+  .dark .text-travel-slate {
+    @apply text-gray-200;
   }
 }
 
