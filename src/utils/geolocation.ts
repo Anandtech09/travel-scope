@@ -4,9 +4,10 @@
  */
 
 /**
- * Get the user's current location using the browser's Geolocation API
+ * Get the user's current location using the browser's Geolocation API and convert to readable location string
+ * @returns {Promise<string>} A promise that resolves to the user's location as a string
  */
-export const getCurrentLocation = (): Promise<GeolocationPosition> => {
+export const getCurrentLocation = async (): Promise<string> => {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       reject(new Error('Geolocation is not supported by your browser'));
@@ -14,7 +15,31 @@ export const getCurrentLocation = (): Promise<GeolocationPosition> => {
     }
     
     navigator.geolocation.getCurrentPosition(
-      (position) => resolve(position),
+      async (position) => {
+        try {
+          // Get the readable location name from coordinates
+          const { latitude, longitude } = position.coords;
+          const locationData = await reverseGeocode(latitude, longitude);
+          
+          if ('error' in locationData) {
+            // If reverse geocoding fails, return coordinates as string
+            resolve(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
+          } else {
+            // Return a formatted location string
+            const locationParts = [];
+            if (locationData.district) locationParts.push(locationData.district);
+            if (locationData.state) locationParts.push(locationData.state);
+            if (locationData.country) locationParts.push(locationData.country);
+            
+            const locationString = locationParts.join(', ');
+            resolve(locationString || `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
+          }
+        } catch (error) {
+          // In case of any error, return coordinates as string
+          const { latitude, longitude } = position.coords;
+          resolve(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
+        }
+      },
       (error) => reject(error),
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
