@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -6,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Loader2, Cloud, Droplets, Wind, Sun, CloudRain, CloudSnow, CloudLightning, CloudFog, Clock, CalendarDays } from 'lucide-react';
 import { getWeatherData } from '@/utils/weatherApi';
 import { useToast } from '@/hooks/use-toast';
+import { getCurrentLocation } from '@/utils/geolocation';
 import { ChartContainer } from '@/components/ui/chart';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 
@@ -71,30 +71,24 @@ const getWeatherBackground = (condition: string) => {
   }
 };
 
-// Sample data for charts in case real data is not available
 const generateFallbackData = () => {
   const tempData = [];
   const humidData = [];
   const currentHour = new Date().getHours();
   
-  // Sample temperature pattern throughout the day
   const baseTemp = 22;
   
   for (let i = 0; i < 24; i++) {
     let hour = (currentHour + i) % 24;
     let hourStr = hour < 10 ? `0${hour}:00` : `${hour}:00`;
     
-    // Temperature varies throughout day with peak at noon-2pm
     let tempVariation = 0;
     if (hour > 6 && hour < 18) {
-      // Daytime temperatures higher
       tempVariation = 5 * Math.sin(((hour - 6) / 12) * Math.PI);
     } else {
-      // Nighttime temperatures lower
       tempVariation = -2;
     }
     
-    // Humidity typically inverse to temperature
     const humidity = 60 - (tempVariation * 2);
     
     tempData.push({
@@ -118,17 +112,31 @@ const Weather = () => {
   const [error, setError] = useState<string | null>(null);
   const [temperatureData, setTemperatureData] = useState<any[]>([]);
   const [humidityData, setHumidityData] = useState<any[]>([]);
+  const [userLocation, setUserLocation] = useState<string>("Sample Location");
 
   useEffect(() => {
     const loadWeather = async () => {
       try {
         setLoading(true);
+        
+        try {
+          const location = localStorage.getItem('userLocation');
+          if (location) {
+            setUserLocation(location);
+          } else {
+            const detectedLocation = await getCurrentLocation();
+            setUserLocation(detectedLocation);
+            localStorage.setItem('userLocation', detectedLocation);
+          }
+        } catch (err) {
+          console.log("Could not get user location:", err);
+        }
+        
         const storedWeather = getWeatherData();
         
         if (storedWeather) {
           setWeather(storedWeather);
           
-          // Set hourly data for charts if available
           if (storedWeather.hourly && storedWeather.hourly.length > 0) {
             setTemperatureData(storedWeather.hourly.map((hour: any) => ({
               time: hour.time,
@@ -140,18 +148,15 @@ const Weather = () => {
               humidity: hour.humidity
             })));
           } else {
-            // Generate simulated hourly data
             generateHourlyData(storedWeather.temperature, storedWeather.condition);
           }
         } else {
-          // Use fallback data for demo purposes
           const { tempData, humidData } = generateFallbackData();
           setTemperatureData(tempData);
           setHumidityData(humidData);
           
-          // Create fallback weather data
           setWeather({
-            location: "Sample Location",
+            location: userLocation,
             temperature: 23,
             condition: "Partly Cloudy",
             humidity: 65,
@@ -174,7 +179,7 @@ const Weather = () => {
           
           toast({
             title: "Sample weather data",
-            description: "Showing demo weather information. Search for destinations to see real data.",
+            description: "Showing demo weather information for " + userLocation,
             variant: "default"
           });
         }
@@ -182,7 +187,6 @@ const Weather = () => {
         console.error('Error loading weather data:', err);
         setError('Failed to load weather data. Please try again later.');
         
-        // Still provide fallback data for demonstration
         const { tempData, humidData } = generateFallbackData();
         setTemperatureData(tempData);
         setHumidityData(humidData);
@@ -200,20 +204,15 @@ const Weather = () => {
     const now = new Date();
     const currentHour = now.getHours();
     
-    // Generate hourly temperature variations based on condition
     for (let i = 0; i < 24; i++) {
       let hour = (currentHour + i) % 24;
       let tempVariation = 0;
       
-      // Temperature varies throughout day
       if (condition.toLowerCase().includes('clear') || condition.toLowerCase().includes('sun')) {
-        // Higher during day, lower at night
         tempVariation = hour > 6 && hour < 18 ? Math.sin((hour - 6) * Math.PI / 12) * 5 : -2;
       } else if (condition.toLowerCase().includes('rain')) {
-        // Rain makes it cooler
         tempVariation = -2 + Math.sin(hour * Math.PI / 12) * 2;
       } else {
-        // Default variation
         tempVariation = Math.sin(hour * Math.PI / 12) * 3;
       }
       
@@ -251,7 +250,6 @@ const Weather = () => {
     );
   }
 
-  // Always show weather data, either real or sample
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -260,14 +258,12 @@ const Weather = () => {
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-travel-slate mb-8 flex items-center dark:text-white">
             <Cloud className="mr-2 h-8 w-8 text-travel-teal animate-pulse" />
-            Weather Information
+            Weather Information for {userLocation}
           </h1>
           
           {weather && (
             <div className="space-y-8">
-              {/* Current Weather with animated background */}
               <Card className={`p-6 shadow-lg overflow-hidden relative ${getWeatherBackground(weather.condition)}`}>
-                {/* Weather animation effects */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
                   {weather.condition.toLowerCase().includes('rain') && (
                     <div className="rain-animation">
@@ -347,7 +343,6 @@ const Weather = () => {
                 </div>
               </Card>
               
-              {/* 24-Hour Forecast Chart - Bar Chart */}
               <div className="animate-fade-in">
                 <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center dark:text-white">
                   <Clock className="mr-2 h-5 w-5 text-travel-teal" />
@@ -391,7 +386,6 @@ const Weather = () => {
                 </Card>
               </div>
               
-              {/* 5-Day Forecast with improved design */}
               <div className="animate-fade-in">
                 <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center dark:text-white">
                   <CalendarDays className="mr-2 h-5 w-5 text-travel-teal" />
@@ -423,7 +417,6 @@ const Weather = () => {
                 </div>
               </div>
               
-              {/* Histogram for Humidity Data */}
               <div className="animate-fade-in">
                 <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center dark:text-white">
                   <Droplets className="mr-2 h-5 w-5 text-travel-teal" />
@@ -467,7 +460,6 @@ const Weather = () => {
                 </Card>
               </div>
 
-              {/* Weather Tips Section */}
               <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-travel-teal dark:bg-gray-800 dark:from-gray-800 dark:to-gray-700">
                 <h3 className="text-xl font-semibold text-travel-slate mb-4 dark:text-white">Weather Tips</h3>
                 <div className="prose text-travel-slate/80 dark:text-gray-300 max-w-none">
@@ -498,7 +490,6 @@ const Weather = () => {
       
       <Footer />
 
-      {/* CSS Animations */}
       <style>
         {`
         .rain-drop {

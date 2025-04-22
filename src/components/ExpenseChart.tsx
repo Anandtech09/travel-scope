@@ -15,14 +15,11 @@ interface ExpenseChartProps {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#9271F6'];
 
 const ExpenseChart: React.FC<ExpenseChartProps> = ({ expenses }) => {
-  // Make sure all expense values are numbers, not objects
-  const data = [
-    { name: 'Transportation', value: Number(expenses.transportation) },
-    { name: 'Accommodation', value: Number(expenses.accommodation) },
-    { name: 'Food', value: Number(expenses.food) },
-    { name: 'Activities', value: Number(expenses.activities) },
-    { name: 'Other', value: Number(expenses.other) },
-  ];
+  // Convert expenses object to array for the pie chart
+  const data = Object.entries(expenses).map(([name, value], index) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    value: Number(value),
+  }));
 
   return (
     <div className="h-64 w-full">
@@ -42,7 +39,10 @@ const ExpenseChart: React.FC<ExpenseChartProps> = ({ expenses }) => {
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip formatter={(value) => `${value}%`} />
+          <Tooltip 
+            formatter={(value, name) => [`${value}`, name]}
+            contentStyle={{ backgroundColor: 'white', borderRadius: '8px' }}
+          />
           <Legend />
         </PieChart>
       </ResponsiveContainer>

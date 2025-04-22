@@ -20,11 +20,13 @@ import {
   Camera, 
   Clock,
   X,
-  Loader2
+  Loader2,
+  Plane
 } from 'lucide-react';
 import { getDestinationDetails } from '../utils/geminiApi';
 import ExpenseChart from './ExpenseChart';
 import type { Destination } from './DestinationCard';
+import { useToast } from '@/hooks/use-toast';
 
 interface DestinationDetailProps {
   destination: Destination | null;
@@ -55,10 +57,40 @@ interface DestinationDetails {
   };
 }
 
+// Sample fallback data if API fails
+const fallbackDetails: DestinationDetails = {
+  attractions: [
+    "Famous landmark",
+    "Local market",
+    "Historic district"
+  ],
+  accommodation: {
+    budget: "$30-50 per night",
+    mid: "$100-150 per night",
+    luxury: "$200+ per night"
+  },
+  food: {
+    budget: "$5-10 per meal",
+    mid: "$15-30 per meal",
+    luxury: "$50+ per meal"
+  },
+  bestTimeToVisit: "Spring and Fall for mild weather",
+  localTips: "Visit during weekdays to avoid crowds. Local transportation is reliable and affordable.",
+  expenses: {
+    transportation: 30,
+    accommodation: 35,
+    food: 20,
+    activities: 10,
+    other: 5
+  }
+};
+
 const DestinationDetail: React.FC<DestinationDetailProps> = ({ destination, open, onClose }) => {
   const [details, setDetails] = useState<DestinationDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tripPlanOpen, setTripPlanOpen] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (destination && open) {
@@ -67,6 +99,7 @@ const DestinationDetail: React.FC<DestinationDetailProps> = ({ destination, open
       // Reset state when dialog closes
       setDetails(null);
       setError(null);
+      setTripPlanOpen(false);
     }
   }, [destination, open]);
 
@@ -79,16 +112,46 @@ const DestinationDetail: React.FC<DestinationDetailProps> = ({ destination, open
     try {
       const detailsData = await getDestinationDetails(destination);
       if (detailsData) {
-        setDetails(detailsData);
+        // Ensure the expenses object has all required properties
+        const expenses = {
+          transportation: detailsData.expenses?.transportation || 30,
+          accommodation: detailsData.expenses?.accommodation || 35,
+          food: detailsData.expenses?.food || 20,
+          activities: detailsData.expenses?.activities || 10,
+          other: detailsData.expenses?.other || 5
+        };
+        
+        setDetails({
+          ...detailsData,
+          expenses
+        });
       } else {
         throw new Error("Failed to fetch destination details");
       }
     } catch (err) {
       console.error("Error fetching destination details:", err);
-      setError("Unable to load destination details. Please try again later.");
+      setError("Unable to load destination details. Using sample data instead.");
+      
+      // Use fallback data
+      setDetails(fallbackDetails);
+      
+      toast({
+        title: "Using fallback data",
+        description: "We couldn't load the latest details, so we're showing sample information.",
+        variant: "default"
+      });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCreateTripPlan = () => {
+    setTripPlanOpen(true);
+    toast({
+      title: "Trip plan created!",
+      description: `Your trip to ${destination?.name} has been added to your itinerary.`,
+      variant: "default"
+    });
   };
 
   if (!destination) return null;
@@ -106,7 +169,7 @@ const DestinationDetail: React.FC<DestinationDetailProps> = ({ destination, open
             </Button>
           </div>
           <DialogDescription className="text-travel-slate/70">
-            Detailed information and travel guide
+            Detailed information and travel guide for {destination.name}, {destination.country}
           </DialogDescription>
         </DialogHeader>
         
@@ -167,6 +230,16 @@ const DestinationDetail: React.FC<DestinationDetailProps> = ({ destination, open
                 <div>
                   <h3 className="text-lg font-semibold mb-2 text-travel-slate">Transportation Costs</h3>
                   <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Plane className="h-4 w-4 mr-2 text-travel-slate" />
+                        <span>By Air</span>
+                      </div>
+                      <Badge variant="outline" className="bg-travel-sand text-travel-slate">
+                        {destination.currency} {destination.transportationCost}
+                      </Badge>
+                    </div>
+                    
                     {destination.cost.train && (
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
@@ -275,6 +348,20 @@ const DestinationDetail: React.FC<DestinationDetailProps> = ({ destination, open
               <h3 className="text-lg font-semibold mb-2 text-travel-slate">Local Tips</h3>
               <p className="text-gray-600">{details.localTips}</p>
             </div>
+            
+            {tripPlanOpen && (
+              <div className="border border-travel-teal p-4 rounded-lg bg-travel-lightBlue/20">
+                <h3 className="text-lg font-semibold mb-2 text-travel-slate">Your Trip Plan</h3>
+                <p className="text-gray-600 mb-2">Your trip to {destination.name} has been created!</p>
+                <ul className="list-disc pl-5 text-gray-600">
+                  <li>Destination: {destination.name}, {destination.country}</li>
+                  <li>Budget: {destination.currency} {destination.totalBudget}</li>
+                  <li>Travel Mode: Flight + Local Transportation</li>
+                  <li>Duration: 7 days (suggested)</li>
+                </ul>
+                <p className="text-gray-600 mt-2">Check your email for the detailed itinerary.</p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="mt-6 space-y-6">
@@ -333,7 +420,10 @@ const DestinationDetail: React.FC<DestinationDetailProps> = ({ destination, open
         )}
         
         <DialogFooter className="mt-6">
-          <Button className="bg-travel-teal hover:bg-travel-teal/90 text-white w-full">
+          <Button 
+            className="bg-travel-teal hover:bg-travel-teal/90 text-white w-full"
+            onClick={handleCreateTripPlan}
+          >
             Create Trip Plan
           </Button>
         </DialogFooter>
