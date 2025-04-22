@@ -8,15 +8,30 @@ import { MapPin, Train, Bus, Calendar, ArrowRight } from 'lucide-react';
 export interface Destination {
   id: string;
   name: string;
+  country?: string;
   image: string;
   description: string;
   cost: {
     train?: number;
     bus?: number;
   };
+  transportationCost?: number;
+  accommodationCost?: number;
+  totalBudget?: number;
   currency: string;
   distance: string;
   travelTime: string;
+  imageUrl?: string;
+  activities?: string[];
+  weather?: {
+    temperature: number;
+    condition: string;
+    forecast: {
+      day: string;
+      temp: number;
+      condition: string;
+    }[];
+  };
 }
 
 interface DestinationCardProps {
@@ -29,23 +44,30 @@ const DestinationCard: React.FC<DestinationCardProps> = ({ destination, onClick 
     <Card className="destination-card group h-full flex flex-col">
       <div className="relative h-48 overflow-hidden rounded-t-lg">
         <img 
-          src={destination.image} 
+          src={destination.image || destination.imageUrl} 
           alt={destination.name}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <h3 className="absolute bottom-3 left-3 text-white font-bold text-xl">{destination.name}</h3>
+        {destination.country && (
+          <div className="absolute bottom-3 right-3">
+            <Badge variant="outline" className="bg-black/40 text-white border-none">
+              {destination.country}
+            </Badge>
+          </div>
+        )}
       </div>
       
       <div className="p-4 flex-grow flex flex-col">
-        <p className="text-sm text-gray-600 line-clamp-2 mb-3">{destination.description}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">{destination.description}</p>
         
-        <div className="flex items-center text-sm text-gray-500 mb-2">
+        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
           <MapPin className="h-4 w-4 mr-1 text-travel-teal" />
           <span>{destination.distance}</span>
         </div>
         
-        <div className="flex items-center text-sm text-gray-500 mb-4">
+        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
           <Calendar className="h-4 w-4 mr-1 text-travel-teal" />
           <span>{destination.travelTime}</span>
         </div>
