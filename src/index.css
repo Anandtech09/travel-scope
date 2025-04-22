@@ -104,6 +104,31 @@ body, html, .font-passero-one, * {
   body {
     @apply bg-background text-foreground font-sans;
   }
+  
+  /* Support for custom theme colors from HSL string variables */
+  :root[style*="--primary-hsl"] .text-travel-teal {
+    color: hsl(var(--primary-hsl));
+  }
+  
+  :root[style*="--primary-hsl"] .bg-travel-teal {
+    background-color: hsl(var(--primary-hsl));
+  }
+  
+  :root[style*="--primary-hsl"] .border-travel-teal {
+    border-color: hsl(var(--primary-hsl));
+  }
+  
+  :root[style*="--accent-hsl"] .text-travel-orange {
+    color: hsl(var(--accent-hsl));
+  }
+  
+  :root[style*="--accent-hsl"] .bg-travel-orange {
+    background-color: hsl(var(--accent-hsl));
+  }
+  
+  :root[style*="--accent-hsl"] .border-travel-orange {
+    border-color: hsl(var(--accent-hsl));
+  }
 }
 
 @layer components {
@@ -131,6 +156,36 @@ body, html, .font-passero-one, * {
   .dark .text-travel-slate {
     @apply text-gray-200;
   }
+}
+
+/* Apply custom color themes to components */
+:root[style*="--primary"] .text-travel-teal {
+  color: var(--primary, #0EA5E9);
+}
+
+:root[style*="--primary"] .bg-travel-teal {
+  background-color: var(--primary, #0EA5E9);
+}
+
+:root[style*="--primary"] .hover\:bg-travel-teal:hover {
+  background-color: var(--primary, #0EA5E9);
+  opacity: 0.9;
+}
+
+:root[style*="--primary"] .border-travel-teal {
+  border-color: var(--primary, #0EA5E9);
+}
+
+:root[style*="--accent"] .text-travel-orange {
+  color: var(--accent, #F97316);
+}
+
+:root[style*="--accent"] .bg-travel-orange {
+  background-color: var(--accent, #F97316);
+}
+
+:root[style*="--accent"] .border-travel-orange {
+  border-color: var(--accent, #F97316);
 }
 
 /* New animations */

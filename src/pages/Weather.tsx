@@ -71,6 +71,46 @@ const getWeatherBackground = (condition: string) => {
   }
 };
 
+// Sample data for charts in case real data is not available
+const generateFallbackData = () => {
+  const tempData = [];
+  const humidData = [];
+  const currentHour = new Date().getHours();
+  
+  // Sample temperature pattern throughout the day
+  const baseTemp = 22;
+  
+  for (let i = 0; i < 24; i++) {
+    let hour = (currentHour + i) % 24;
+    let hourStr = hour < 10 ? `0${hour}:00` : `${hour}:00`;
+    
+    // Temperature varies throughout day with peak at noon-2pm
+    let tempVariation = 0;
+    if (hour > 6 && hour < 18) {
+      // Daytime temperatures higher
+      tempVariation = 5 * Math.sin(((hour - 6) / 12) * Math.PI);
+    } else {
+      // Nighttime temperatures lower
+      tempVariation = -2;
+    }
+    
+    // Humidity typically inverse to temperature
+    const humidity = 60 - (tempVariation * 2);
+    
+    tempData.push({
+      time: hourStr,
+      temperature: Math.round(baseTemp + tempVariation)
+    });
+    
+    humidData.push({
+      time: hourStr,
+      humidity: Math.max(30, Math.min(90, Math.round(humidity)))
+    });
+  }
+  
+  return { tempData, humidData };
+};
+
 const Weather = () => {
   const { toast } = useToast();
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -90,12 +130,12 @@ const Weather = () => {
           
           // Set hourly data for charts if available
           if (storedWeather.hourly && storedWeather.hourly.length > 0) {
-            setTemperatureData(storedWeather.hourly.map(hour => ({
+            setTemperatureData(storedWeather.hourly.map((hour: any) => ({
               time: hour.time,
               temperature: hour.temperature
             })));
             
-            setHumidityData(storedWeather.hourly.map(hour => ({
+            setHumidityData(storedWeather.hourly.map((hour: any) => ({
               time: hour.time,
               humidity: hour.humidity
             })));
@@ -104,16 +144,48 @@ const Weather = () => {
             generateHourlyData(storedWeather.temperature, storedWeather.condition);
           }
         } else {
-          setError('No weather data available. Please search for a destination with your location to enable weather.');
+          // Use fallback data for demo purposes
+          const { tempData, humidData } = generateFallbackData();
+          setTemperatureData(tempData);
+          setHumidityData(humidData);
+          
+          // Create fallback weather data
+          setWeather({
+            location: "Sample Location",
+            temperature: 23,
+            condition: "Partly Cloudy",
+            humidity: 65,
+            windSpeed: 12,
+            iconCode: "cloudy",
+            forecast: [
+              { date: "Mon", condition: "Sunny", minTemp: 20, maxTemp: 28, iconCode: "sunny" },
+              { date: "Tue", condition: "Partly Cloudy", minTemp: 19, maxTemp: 26, iconCode: "partly-cloudy" },
+              { date: "Wed", condition: "Rain", minTemp: 17, maxTemp: 22, iconCode: "rain" },
+              { date: "Thu", condition: "Cloudy", minTemp: 18, maxTemp: 24, iconCode: "cloudy" },
+              { date: "Fri", condition: "Sunny", minTemp: 21, maxTemp: 29, iconCode: "sunny" }
+            ],
+            hourly: tempData.map((item, idx) => ({
+              time: item.time,
+              temperature: item.temperature,
+              humidity: humidData[idx].humidity,
+              condition: idx % 6 === 0 ? "Cloudy" : (idx % 8 === 0 ? "Rain" : "Partly Cloudy")
+            }))
+          });
+          
           toast({
-            title: "Weather data not available",
-            description: "Please use 'Find Destinations' with location permission to view weather data.",
-            variant: "destructive"
+            title: "Sample weather data",
+            description: "Showing demo weather information. Search for destinations to see real data.",
+            variant: "default"
           });
         }
       } catch (err) {
         console.error('Error loading weather data:', err);
         setError('Failed to load weather data. Please try again later.');
+        
+        // Still provide fallback data for demonstration
+        const { tempData, humidData } = generateFallbackData();
+        setTemperatureData(tempData);
+        setHumidityData(humidData);
       } finally {
         setLoading(false);
       }
@@ -179,36 +251,14 @@ const Weather = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow">
-          <div className="container mx-auto px-4 py-12">
-            <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <Cloud className="h-5 w-5 text-amber-400" />
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-amber-700">{error}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
+  // Always show weather data, either real or sample
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold text-travel-slate mb-8 flex items-center">
+          <h1 className="text-3xl font-bold text-travel-slate mb-8 flex items-center dark:text-white">
             <Cloud className="mr-2 h-8 w-8 text-travel-teal animate-pulse" />
             Weather Information
           </h1>
@@ -299,7 +349,7 @@ const Weather = () => {
               
               {/* 24-Hour Forecast Chart - Bar Chart */}
               <div className="animate-fade-in">
-                <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center">
+                <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center dark:text-white">
                   <Clock className="mr-2 h-5 w-5 text-travel-teal" />
                   24-Hour Temperature Forecast
                 </h3>
@@ -332,7 +382,7 @@ const Weather = () => {
                       <Legend />
                       <Bar 
                         dataKey="temperature" 
-                        fill="#0ea5e9" 
+                        fill="var(--primary, #0EA5E9)" 
                         name="Temperature"
                         radius={[4, 4, 0, 0]}
                       />
@@ -343,7 +393,7 @@ const Weather = () => {
               
               {/* 5-Day Forecast with improved design */}
               <div className="animate-fade-in">
-                <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center">
+                <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center dark:text-white">
                   <CalendarDays className="mr-2 h-5 w-5 text-travel-teal" />
                   5-Day Forecast
                 </h3>
@@ -351,22 +401,22 @@ const Weather = () => {
                   {weather.forecast.map((day, index) => (
                     <Card 
                       key={index} 
-                      className="p-6 flex flex-col items-center transform hover:scale-105 transition-all duration-300 hover:shadow-lg"
+                      className="p-6 flex flex-col items-center transform hover:scale-105 transition-all duration-300 hover:shadow-lg dark:bg-gray-800"
                     >
-                      <h4 className="font-bold text-travel-slate text-lg">{day.date}</h4>
+                      <h4 className="font-bold text-travel-slate text-lg dark:text-white">{day.date}</h4>
                       <div className="my-4 transform hover:rotate-12 transition-transform duration-500">
                         {getWeatherIcon(day.condition, 'h-12 w-12')}
                       </div>
-                      <p className="text-sm text-travel-slate/80 mb-3">{day.condition}</p>
-                      <div className="mt-auto w-full bg-gray-100 rounded-full h-1.5">
+                      <p className="text-sm text-travel-slate/80 mb-3 dark:text-gray-300">{day.condition}</p>
+                      <div className="mt-auto w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
                         <div 
                           className="bg-travel-teal h-1.5 rounded-full" 
                           style={{ width: `${((day.maxTemp - (day.minTemp - 5)) / 15) * 100}%` }}
                         ></div>
                       </div>
                       <div className="w-full flex justify-between mt-2">
-                        <span className="font-medium text-travel-slate">{day.maxTemp}°</span>
-                        <span className="text-travel-slate/60">{day.minTemp}°</span>
+                        <span className="font-medium text-travel-slate dark:text-white">{day.maxTemp}°</span>
+                        <span className="text-travel-slate/60 dark:text-gray-400">{day.minTemp}°</span>
                       </div>
                     </Card>
                   ))}
@@ -375,7 +425,7 @@ const Weather = () => {
               
               {/* Histogram for Humidity Data */}
               <div className="animate-fade-in">
-                <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center">
+                <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center dark:text-white">
                   <Droplets className="mr-2 h-5 w-5 text-travel-teal" />
                   Humidity Histogram
                 </h3>
@@ -408,7 +458,7 @@ const Weather = () => {
                       <Legend />
                       <Bar 
                         dataKey="humidity" 
-                        fill="#8884d8" 
+                        fill="var(--accent, #8884d8)" 
                         name="Humidity"
                         radius={[4, 4, 0, 0]}
                       />
@@ -418,9 +468,9 @@ const Weather = () => {
               </div>
 
               {/* Weather Tips Section */}
-              <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-travel-teal">
-                <h3 className="text-xl font-semibold text-travel-slate mb-4">Weather Tips</h3>
-                <div className="prose text-travel-slate/80 max-w-none">
+              <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-travel-teal dark:bg-gray-800 dark:from-gray-800 dark:to-gray-700">
+                <h3 className="text-xl font-semibold text-travel-slate mb-4 dark:text-white">Weather Tips</h3>
+                <div className="prose text-travel-slate/80 dark:text-gray-300 max-w-none">
                   {weather.condition.toLowerCase().includes('rain') && (
                     <p>Don't forget your umbrella and waterproof clothing. The rain may continue throughout the day.</p>
                   )}

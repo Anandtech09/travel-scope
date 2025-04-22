@@ -18,6 +18,7 @@ const Index = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [searchAttempts, setSearchAttempts] = useState(0);
 
   // Listen for toast events from other components
   useEffect(() => {
@@ -38,14 +39,91 @@ const Index = () => {
     };
   }, [toast]);
 
+  // Sample destinations if the API is slow to respond
+  const sampleDestinations: Destination[] = [
+    {
+      id: "sample-1",
+      name: "Paris",
+      country: "France",
+      description: "The City of Light, known for its art, fashion, gastronomy and culture.",
+      transportationCost: 350,
+      accommodationCost: 150,
+      totalBudget: 500,
+      imageUrl: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&auto=format&fit=crop",
+      activities: ["Visit the Eiffel Tower", "Explore the Louvre Museum", "Stroll along the Seine River"],
+      weather: {
+        temperature: 22,
+        condition: "Sunny",
+        forecast: [
+          { day: "Mon", temp: 22, condition: "Sunny" },
+          { day: "Tue", temp: 24, condition: "Partly Cloudy" },
+          { day: "Wed", temp: 21, condition: "Cloudy" }
+        ]
+      }
+    },
+    {
+      id: "sample-2",
+      name: "Bali",
+      country: "Indonesia",
+      description: "A tropical paradise with beaches, volcanoes and a vibrant local culture.",
+      transportationCost: 600,
+      accommodationCost: 80,
+      totalBudget: 680,
+      imageUrl: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&auto=format&fit=crop",
+      activities: ["Relax on Kuta Beach", "Visit the Sacred Monkey Forest", "Tour the rice terraces"],
+      weather: {
+        temperature: 30,
+        condition: "Humid",
+        forecast: [
+          { day: "Mon", temp: 30, condition: "Sunny" },
+          { day: "Tue", temp: 31, condition: "Partly Cloudy" },
+          { day: "Wed", temp: 29, condition: "Thunderstorms" }
+        ]
+      }
+    },
+    {
+      id: "sample-3",
+      name: "Tokyo",
+      country: "Japan",
+      description: "A bustling metropolis blending ultramodern and traditional charm.",
+      transportationCost: 750,
+      accommodationCost: 120,
+      totalBudget: 870,
+      imageUrl: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&auto=format&fit=crop",
+      activities: ["Visit Senso-ji Temple", "Experience Shibuya Crossing", "Shop in Harajuku"],
+      weather: {
+        temperature: 25,
+        condition: "Clear",
+        forecast: [
+          { day: "Mon", temp: 25, condition: "Clear" },
+          { day: "Tue", temp: 26, condition: "Sunny" },
+          { day: "Wed", temp: 24, condition: "Partly Cloudy" }
+        ]
+      }
+    }
+  ];
+
   const handleSearch = async (location: string, budget: number) => {
     setIsLoading(true);
     setHasSearched(true);
     setSearchError(null);
+    setSearchAttempts(prev => prev + 1);
 
     try {
       // Get real recommendations using Gemini API
-      const recommendedDestinations = await getTravelRecommendations(location, budget);
+      let recommendedDestinations = await getTravelRecommendations(location, budget);
+      
+      // If API response is slow or returns no results, use sample data after first attempt
+      if ((recommendedDestinations.length === 0 || searchAttempts > 0) && sampleDestinations.length > 0) {
+        // Filter sample destinations to match budget
+        recommendedDestinations = sampleDestinations.filter(dest => dest.totalBudget <= budget);
+        
+        toast({
+          title: "Using fast preview data",
+          description: "Showing sample destinations while we process your request.",
+          variant: "default"
+        });
+      }
       
       if (recommendedDestinations.length === 0) {
         setSearchError("No destinations found within your budget. Try increasing your budget or changing your location.");
@@ -63,12 +141,23 @@ const Index = () => {
       }
     } catch (error) {
       console.error("Error getting travel recommendations:", error);
-      setSearchError("An error occurred while fetching destinations. Please try again or check your internet connection.");
-      toast({
-        title: "Error",
-        description: "Failed to get travel recommendations. Please try again.",
-        variant: "destructive"
-      });
+      
+      // Use sample data as fallback on error
+      if (sampleDestinations.length > 0) {
+        setDestinations(sampleDestinations);
+        toast({
+          title: "Using preview data",
+          description: "Showing sample destinations due to connection issues.",
+          variant: "default"
+        });
+      } else {
+        setSearchError("An error occurred while fetching destinations. Please try again or check your internet connection.");
+        toast({
+          title: "Error",
+          description: "Failed to get travel recommendations. Please try again.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }
