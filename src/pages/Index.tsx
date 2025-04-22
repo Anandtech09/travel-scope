@@ -46,10 +46,18 @@ const Index = () => {
       name: "Paris",
       country: "France",
       description: "The City of Light, known for its art, fashion, gastronomy and culture.",
+      image: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&auto=format&fit=crop",
+      imageUrl: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&auto=format&fit=crop",
       transportationCost: 350,
       accommodationCost: 150,
       totalBudget: 500,
-      imageUrl: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&auto=format&fit=crop",
+      currency: "€",
+      distance: "1,500 miles",
+      travelTime: "2-3 hours by air",
+      cost: {
+        train: 250,
+        bus: 150
+      },
       activities: ["Visit the Eiffel Tower", "Explore the Louvre Museum", "Stroll along the Seine River"],
       weather: {
         temperature: 22,
@@ -66,10 +74,18 @@ const Index = () => {
       name: "Bali",
       country: "Indonesia",
       description: "A tropical paradise with beaches, volcanoes and a vibrant local culture.",
+      image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&auto=format&fit=crop",
+      imageUrl: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&auto=format&fit=crop",
       transportationCost: 600,
       accommodationCost: 80,
       totalBudget: 680,
-      imageUrl: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&auto=format&fit=crop",
+      currency: "$",
+      distance: "8,000 miles",
+      travelTime: "18-24 hours by air",
+      cost: {
+        train: null,
+        bus: 50
+      },
       activities: ["Relax on Kuta Beach", "Visit the Sacred Monkey Forest", "Tour the rice terraces"],
       weather: {
         temperature: 30,
@@ -86,10 +102,18 @@ const Index = () => {
       name: "Tokyo",
       country: "Japan",
       description: "A bustling metropolis blending ultramodern and traditional charm.",
+      image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&auto=format&fit=crop",
+      imageUrl: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&auto=format&fit=crop",
       transportationCost: 750,
       accommodationCost: 120,
       totalBudget: 870,
-      imageUrl: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&auto=format&fit=crop",
+      currency: "¥",
+      distance: "7,500 miles",
+      travelTime: "12-14 hours by air",
+      cost: {
+        train: 200,
+        bus: 100
+      },
       activities: ["Visit Senso-ji Temple", "Experience Shibuya Crossing", "Shop in Harajuku"],
       weather: {
         temperature: 25,
