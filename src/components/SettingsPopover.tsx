@@ -4,7 +4,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Globe } from "lucide-react";
 import { ThemeContext } from "@/context/ThemeContext";
 import { LanguageContext } from "@/context/LanguageContext";
-import translations from "@/i18n/translations.json";
 
 const themeOptions = [
   { value: "light", labelKey: "theme_light" },
@@ -21,12 +20,8 @@ const languageOptions = [
 
 const SettingsPopover: React.FC = () => {
   const { theme, setTheme, customColor, setCustomColor } = useContext(ThemeContext);
-  const { language, setLanguage } = useContext(LanguageContext);
+  const { language, setLanguage, t } = useContext(LanguageContext);
   const [open, setOpen] = useState(false);
-
-  const t = (key: string) => {
-    return translations[language]?.[key] || translations["en"][key] || key;
-  };
 
   return (
     <div className="absolute top-4 right-4 z-50">

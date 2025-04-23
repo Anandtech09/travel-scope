@@ -22,6 +22,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [customColor, setCustomColor] = useState("#0EA5E9");
 
   useEffect(() => {
+    // Apply theme to document root
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
       document.documentElement.style.setProperty("--primary", "#0EA5E9");
@@ -32,7 +33,25 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       document.documentElement.classList.remove("dark");
       document.documentElement.style.setProperty("--primary", "#0EA5E9");
     }
+
+    // Store theme and customColor in localStorage to persist between sessions
+    localStorage.setItem("theme", theme);
+    localStorage.setItem("customColor", customColor);
   }, [theme, customColor]);
+
+  // Load saved theme and customColor from localStorage on initial load
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") as Theme | null;
+    const savedCustomColor = localStorage.getItem("customColor");
+
+    if (savedTheme) {
+      setTheme(savedTheme);
+    }
+    
+    if (savedCustomColor) {
+      setCustomColor(savedCustomColor);
+    }
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, customColor, setCustomColor }}>

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -7,6 +7,7 @@ import { Search, MapPin, Loader2, DollarSign } from 'lucide-react';
 import { getCurrentLocation } from '../utils/geolocation';
 import { useToast } from '@/hooks/use-toast';
 import CurrencySelect, { Currency, currencies } from './CurrencySelect';
+import { LanguageContext } from '@/context/LanguageContext';
 
 interface SearchFormProps {
   onSearch: (location: string, budget: number) => void;
@@ -19,6 +20,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
   const [locationLoading, setLocationLoading] = useState<boolean>(false);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(currencies[0]); // Default to USD
   const { toast } = useToast();
+  const { t } = useContext(LanguageContext);
 
   const handleLocationDetect = async () => {
     setLocationLoading(true);
@@ -26,14 +28,14 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
       const detectedLocation = await getCurrentLocation();
       setLocation(detectedLocation);
       toast({
-        title: "Location detected",
-        description: `Your location has been set to ${detectedLocation}`,
+        title: t("location_detected"),
+        description: `${t("location_set_to")} ${detectedLocation}`,
       });
     } catch (error) {
       console.error("Error detecting location:", error);
       toast({
-        title: "Location detection failed",
-        description: "Please enter your location manually.",
+        title: t("location_detection_failed"),
+        description: t("enter_location_manually"),
         variant: "destructive"
       });
     } finally {
@@ -46,8 +48,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
     
     if (!location) {
       toast({
-        title: "Location required",
-        description: "Please enter your location to continue.",
+        title: t("location_required"),
+        description: t("enter_location_continue"),
         variant: "destructive"
       });
       return;
@@ -56,8 +58,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
     const budgetValue = parseFloat(budget);
     if (isNaN(budgetValue) || budgetValue <= 0) {
       toast({
-        title: "Invalid budget",
-        description: "Please enter a valid budget amount.",
+        title: t("invalid_budget"),
+        description: t("enter_valid_budget"),
         variant: "destructive"
       });
       return;
@@ -75,8 +77,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
     if (selectedCurrency.code !== 'USD') {
       const event = new CustomEvent('showToast', {
         detail: {
-          title: 'Currency Conversion',
-          description: `Your budget of ${selectedCurrency.symbol}${budgetValue.toFixed(2)} ${selectedCurrency.code} is approximately $${budgetInUSD.toFixed(2)} USD`,
+          title: t("currency_conversion"),
+          description: `${t("budget_of")} ${selectedCurrency.symbol}${budgetValue.toFixed(2)} ${selectedCurrency.code} ${t("is_approximately")} $${budgetInUSD.toFixed(2)} USD`,
           variant: 'default'
         }
       });
@@ -85,12 +87,12 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
   };
   
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-      <h2 className="text-xl font-bold text-travel-slate dark:text-white mb-4">Find Your Perfect Destination</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 max-w-2xl mx-auto">
+      <h2 className="text-xl font-bold text-travel-slate dark:text-white mb-4">{t("find_perfect_destination")}</h2>
       
       <form onSubmit={handleSearch} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="location" className="text-travel-slate dark:text-white">Your Location</Label>
+          <Label htmlFor="location" className="text-travel-slate dark:text-white">{t("your_location")}</Label>
           <div className="flex gap-2">
             <div className="relative flex-grow">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -98,7 +100,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
               </div>
               <Input
                 id="location"
-                placeholder="Enter your city or country"
+                placeholder={t("enter_city_country")}
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="pl-10"
@@ -111,13 +113,13 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
               disabled={locationLoading}
               className="shrink-0"
             >
-              {locationLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Detect"}
+              {locationLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("detect")}
             </Button>
           </div>
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="budget" className="text-travel-slate dark:text-white">Travel Budget</Label>
+          <Label htmlFor="budget" className="text-travel-slate dark:text-white">{t("travel_budget")}</Label>
           <div className="flex gap-2">
             <div className="relative flex-grow">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -126,7 +128,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
               <Input
                 id="budget"
                 type="number"
-                placeholder="Enter your budget"
+                placeholder={t("enter_budget")}
                 value={budget}
                 onChange={(e) => setBudget(e.target.value)}
                 className="pl-10"
@@ -153,12 +155,12 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Searching...
+              {t("searching")}...
             </>
           ) : (
             <>
               <Search className="mr-2 h-4 w-4" />
-              Find Destinations
+              {t("find_destinations")}
             </>
           )}
         </Button>

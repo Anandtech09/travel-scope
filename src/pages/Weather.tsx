@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useContext } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Card } from '@/components/ui/card';
@@ -8,6 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { getCurrentLocation } from '@/utils/geolocation';
 import { ChartContainer } from '@/components/ui/chart';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
+import { LanguageContext } from '@/context/LanguageContext';
+import { ThemeContext } from '@/context/ThemeContext';
 
 interface WeatherData {
   location: string;
@@ -112,7 +115,9 @@ const Weather = () => {
   const [error, setError] = useState<string | null>(null);
   const [temperatureData, setTemperatureData] = useState<any[]>([]);
   const [humidityData, setHumidityData] = useState<any[]>([]);
-  const [userLocation, setUserLocation] = useState<string>("Sample Location");
+  const [userLocation, setUserLocation] = useState<string>("");
+  const { t } = useContext(LanguageContext);
+  const { theme } = useContext(ThemeContext);
 
   useEffect(() => {
     const loadWeather = async () => {
@@ -130,6 +135,7 @@ const Weather = () => {
           }
         } catch (err) {
           console.log("Could not get user location:", err);
+          setUserLocation("Your Location");
         }
         
         const storedWeather = getWeatherData();
@@ -156,7 +162,7 @@ const Weather = () => {
           setHumidityData(humidData);
           
           setWeather({
-            location: userLocation,
+            location: userLocation || "Your Location",
             temperature: 23,
             condition: "Partly Cloudy",
             humidity: 65,
@@ -179,7 +185,7 @@ const Weather = () => {
           
           toast({
             title: "Sample weather data",
-            description: "Showing demo weather information for " + userLocation,
+            description: "Showing demo weather information for " + (userLocation || "Your Location"),
             variant: "default"
           });
         }
@@ -242,7 +248,7 @@ const Weather = () => {
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="mx-auto h-12 w-12 animate-spin text-travel-teal" />
-            <p className="mt-4 text-travel-slate">Loading weather data...</p>
+            <p className="mt-4 text-travel-slate">{t("loading")} {t("weather_data")}...</p>
           </div>
         </main>
         <Footer />
@@ -258,7 +264,7 @@ const Weather = () => {
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-travel-slate mb-8 flex items-center dark:text-white">
             <Cloud className="mr-2 h-8 w-8 text-travel-teal animate-pulse" />
-            Weather Information for {userLocation}
+            {t("weather_information_for")} {userLocation}
           </h1>
           
           {weather && (
@@ -324,7 +330,7 @@ const Weather = () => {
                         <div className="flex items-center gap-2">
                           <Droplets className="h-8 w-8 text-blue-500" />
                           <div>
-                            <p className="text-sm text-white/80">Humidity</p>
+                            <p className="text-sm text-white/80">{t("humidity")}</p>
                             <p className="text-2xl font-medium text-white">{weather.humidity}%</p>
                           </div>
                         </div>
@@ -333,7 +339,7 @@ const Weather = () => {
                         <div className="flex items-center gap-2">
                           <Wind className="h-8 w-8 text-blue-300" />
                           <div>
-                            <p className="text-sm text-white/80">Wind Speed</p>
+                            <p className="text-sm text-white/80">{t("wind_speed")}</p>
                             <p className="text-2xl font-medium text-white">{weather.windSpeed} m/s</p>
                           </div>
                         </div>
@@ -346,7 +352,7 @@ const Weather = () => {
               <div className="animate-fade-in">
                 <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center dark:text-white">
                   <Clock className="mr-2 h-5 w-5 text-travel-teal" />
-                  24-Hour Temperature Forecast
+                  {t("24h_temperature_forecast")}
                 </h3>
                 <Card className="p-4 h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -357,28 +363,28 @@ const Weather = () => {
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                       <XAxis 
                         dataKey="time" 
-                        tick={{ fill: '#334155', fontSize: 12 }}
+                        tick={{ fill: theme === 'dark' ? '#e0e0e0' : '#334155', fontSize: 12 }}
                       />
                       <YAxis 
                         domain={['dataMin - 5', 'dataMax + 5']}
-                        tick={{ fill: '#334155', fontSize: 12 }}
-                        label={{ value: '°C', position: 'insideLeft', angle: -90, dy: 40, fill: '#334155' }}
+                        tick={{ fill: theme === 'dark' ? '#e0e0e0' : '#334155', fontSize: 12 }}
+                        label={{ value: '°C', position: 'insideLeft', angle: -90, dy: 40, fill: theme === 'dark' ? '#e0e0e0' : '#334155' }}
                       />
                       <Tooltip 
                         contentStyle={{ 
-                          backgroundColor: 'white', 
+                          backgroundColor: theme === 'dark' ? '#374151' : 'white', 
                           borderRadius: '0.5rem', 
                           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                          color: '#334155'
+                          color: theme === 'dark' ? '#e0e0e0' : '#334155'
                         }}
-                        formatter={(value) => [`${value}°C`, 'Temperature']}
-                        labelFormatter={(label) => `Time: ${label}`}
+                        formatter={(value) => [`${value}°C`, t("temperature")]}
+                        labelFormatter={(label) => `${t("time")}: ${label}`}
                       />
                       <Legend />
                       <Bar 
                         dataKey="temperature" 
                         fill="var(--primary, #0EA5E9)" 
-                        name="Temperature"
+                        name={t("temperature")}
                         radius={[4, 4, 0, 0]}
                       />
                     </BarChart>
@@ -389,7 +395,7 @@ const Weather = () => {
               <div className="animate-fade-in">
                 <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center dark:text-white">
                   <CalendarDays className="mr-2 h-5 w-5 text-travel-teal" />
-                  5-Day Forecast
+                  {t("5day_forecast")}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {weather.forecast.map((day, index) => (
@@ -420,7 +426,7 @@ const Weather = () => {
               <div className="animate-fade-in">
                 <h3 className="text-xl font-semibold text-travel-slate mb-4 flex items-center dark:text-white">
                   <Droplets className="mr-2 h-5 w-5 text-travel-teal" />
-                  Humidity Histogram
+                  {t("humidity_histogram")}
                 </h3>
                 <Card className="p-4 h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -428,31 +434,31 @@ const Weather = () => {
                       data={humidityData}
                       margin={{ top: 20, right: 30, left: 10, bottom: 20 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#2d3748' : '#f0f0f0'} />
                       <XAxis 
                         dataKey="time" 
-                        tick={{ fill: '#334155', fontSize: 12 }}
+                        tick={{ fill: theme === 'dark' ? '#e0e0e0' : '#334155', fontSize: 12 }}
                       />
                       <YAxis 
                         domain={[0, 100]}
-                        tick={{ fill: '#334155', fontSize: 12 }}
-                        label={{ value: '%', position: 'insideLeft', angle: -90, dy: 40, fill: '#334155' }}
+                        tick={{ fill: theme === 'dark' ? '#e0e0e0' : '#334155', fontSize: 12 }}
+                        label={{ value: '%', position: 'insideLeft', angle: -90, dy: 40, fill: theme === 'dark' ? '#e0e0e0' : '#334155' }}
                       />
                       <Tooltip 
                         contentStyle={{ 
-                          backgroundColor: 'white', 
+                          backgroundColor: theme === 'dark' ? '#374151' : 'white', 
                           borderRadius: '0.5rem', 
                           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                          color: '#334155'
+                          color: theme === 'dark' ? '#e0e0e0' : '#334155'
                         }}
-                        formatter={(value) => [`${value}%`, 'Humidity']}
-                        labelFormatter={(label) => `Time: ${label}`}
+                        formatter={(value) => [`${value}%`, t("humidity")]}
+                        labelFormatter={(label) => `${t("time")}: ${label}`}
                       />
                       <Legend />
                       <Bar 
                         dataKey="humidity" 
                         fill="var(--accent, #8884d8)" 
-                        name="Humidity"
+                        name={t("humidity")}
                         radius={[4, 4, 0, 0]}
                       />
                     </BarChart>
@@ -461,25 +467,25 @@ const Weather = () => {
               </div>
 
               <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-travel-teal dark:bg-gray-800 dark:from-gray-800 dark:to-gray-700">
-                <h3 className="text-xl font-semibold text-travel-slate mb-4 dark:text-white">Weather Tips</h3>
+                <h3 className="text-xl font-semibold text-travel-slate mb-4 dark:text-white">{t("weather_tips")}</h3>
                 <div className="prose text-travel-slate/80 dark:text-gray-300 max-w-none">
                   {weather.condition.toLowerCase().includes('rain') && (
-                    <p>Don't forget your umbrella and waterproof clothing. The rain may continue throughout the day.</p>
+                    <p>{t("rain_tip")}</p>
                   )}
                   {weather.condition.toLowerCase().includes('cloud') && (
-                    <p>Partly cloudy conditions expected. Temperatures may vary throughout the day.</p>
+                    <p>{t("cloud_tip")}</p>
                   )}
                   {weather.condition.toLowerCase().includes('clear') && (
-                    <p>Clear skies ahead! Don't forget sunscreen and stay hydrated with this beautiful weather.</p>
+                    <p>{t("clear_tip")}</p>
                   )}
                   {weather.condition.toLowerCase().includes('snow') && (
-                    <p>Snowy conditions expected. Dress warmly and check road conditions before traveling.</p>
+                    <p>{t("snow_tip")}</p>
                   )}
                   {!weather.condition.toLowerCase().includes('rain') && 
                    !weather.condition.toLowerCase().includes('cloud') && 
                    !weather.condition.toLowerCase().includes('clear') && 
                    !weather.condition.toLowerCase().includes('snow') && (
-                    <p>Check local weather advisories for changing conditions throughout the day.</p>
+                    <p>{t("general_tip")}</p>
                   )}
                 </div>
               </Card>
