@@ -1,11 +1,14 @@
 
 import React from 'react';
 import RandomBackgroundSelector from './RandomBackgroundSelector';
+import SettingsPopover from './SettingsPopover';
 
 const Hero = () => {
   return (
-    <RandomBackgroundSelector className="py-20 bg-fixed bg-cover bg-center" style={{ backgroundAttachment: 'fixed' }}>
-      <div className="container mx-auto px-4 text-center">
+    <RandomBackgroundSelector className="py-20 bg-fixed bg-cover bg-center relative" style={{ backgroundAttachment: 'fixed' }}>
+      {/* Settings (top-right corner, on top of hero) */}
+      <SettingsPopover />
+      <div className="container mx-auto px-4 text-center relative z-10">
         <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg mb-4">
           Discover Your Perfect Destination
         </h1>

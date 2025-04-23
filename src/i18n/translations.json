@@ -1,0 +1,35 @@
+
+{
+  "en": {
+    "choose_theme": "Theme",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_custom": "Custom",
+    "choose_language": "Language",
+    "custom_color": "Pick color"
+  },
+  "ml": {
+    "choose_theme": "തീം",
+    "theme_light": "പ്രകാശം",
+    "theme_dark": "ഇരുണ്ടത്",
+    "theme_custom": "കസ്റ്റം",
+    "choose_language": "ഭാഷ",
+    "custom_color": "നിറം തിരഞ്ഞെടുക്കുക"
+  },
+  "hi": {
+    "choose_theme": "थीम",
+    "theme_light": "लाइट",
+    "theme_dark": "डार्क",
+    "theme_custom": "कस्टम",
+    "choose_language": "भाषा",
+    "custom_color": "रंग चुनें"
+  },
+  "ta": {
+    "choose_theme": "தீம்",
+    "theme_light": "ஒளி",
+    "theme_dark": "இருள்",
+    "theme_custom": "விருப்பம்",
+    "choose_language": "மொழி",
+    "custom_color": "வண்ணத்தை தேர்ந்தெடுக்கவும்"
+  }
+}
