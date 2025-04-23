@@ -33,11 +33,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       document.documentElement.classList.add("custom");
       document.documentElement.classList.remove("light");
       document.documentElement.style.setProperty("--primary", customColor);
-      // Apply custom color to all elements with travel-teal class
-      document.querySelectorAll(".text-travel-teal").forEach(el => {
+      
+      // Apply custom color to all elements with text-travel-teal class in real-time
+      const tealTextElements = document.querySelectorAll(".text-travel-teal");
+      tealTextElements.forEach(el => {
         (el as HTMLElement).style.color = customColor;
       });
-      document.querySelectorAll(".bg-travel-teal").forEach(el => {
+      
+      // Apply custom color to all elements with bg-travel-teal class in real-time
+      const tealBgElements = document.querySelectorAll(".bg-travel-teal");
+      tealBgElements.forEach(el => {
         (el as HTMLElement).style.backgroundColor = customColor;
       });
     } else {
@@ -51,8 +56,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem("theme", theme);
     localStorage.setItem("customColor", customColor);
     
-    // Dispatch a custom event to notify components of theme change
-    document.dispatchEvent(new CustomEvent("themeChange", { 
+    // Dispatch a global theme change event for all components to react to
+    window.dispatchEvent(new CustomEvent("themeChange", { 
       detail: { theme, customColor } 
     }));
   }, [theme, customColor]);

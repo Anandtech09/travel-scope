@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useContext } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -115,8 +114,8 @@ const Weather = () => {
   const [error, setError] = useState<string | null>(null);
   const [temperatureData, setTemperatureData] = useState<any[]>([]);
   const [humidityData, setHumidityData] = useState<any[]>([]);
-  const [userLocation, setUserLocation] = useState<string>("");
-  const { t } = useContext(LanguageContext);
+  const [userLocation, setUserLocation] = useState<string>("Thiruvananthapuram, Kerala, India");
+  const { t, language } = useContext(LanguageContext);
   const { theme } = useContext(ThemeContext);
 
   useEffect(() => {
@@ -124,18 +123,11 @@ const Weather = () => {
       try {
         setLoading(true);
         
-        try {
-          const location = localStorage.getItem('userLocation');
-          if (location) {
-            setUserLocation(location);
-          } else {
-            const detectedLocation = await getCurrentLocation();
-            setUserLocation(detectedLocation);
-            localStorage.setItem('userLocation', detectedLocation);
-          }
-        } catch (err) {
-          console.log("Could not get user location:", err);
-          setUserLocation("Your Location");
+        const location = localStorage.getItem('userLocation');
+        if (location) {
+          setUserLocation(location);
+        } else {
+          localStorage.setItem('userLocation', userLocation);
         }
         
         const storedWeather = getWeatherData();
@@ -162,7 +154,7 @@ const Weather = () => {
           setHumidityData(humidData);
           
           setWeather({
-            location: userLocation || "Your Location",
+            location: userLocation,
             temperature: 23,
             condition: "Partly Cloudy",
             humidity: 65,
@@ -182,12 +174,6 @@ const Weather = () => {
               condition: idx % 6 === 0 ? "Cloudy" : (idx % 8 === 0 ? "Rain" : "Partly Cloudy")
             }))
           });
-          
-          toast({
-            title: "Sample weather data",
-            description: "Showing demo weather information for " + (userLocation || "Your Location"),
-            variant: "default"
-          });
         }
       } catch (err) {
         console.error('Error loading weather data:', err);
@@ -202,7 +188,19 @@ const Weather = () => {
     };
 
     loadWeather();
-  }, [toast]);
+  }, [userLocation, toast]);
+
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      setLoading(true);
+      setTimeout(() => setLoading(false), 100);
+    };
+
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => {
+      window.removeEventListener('languageChange', handleLanguageChange);
+    };
+  }, []);
 
   const generateHourlyData = (baseTemp: number, condition: string) => {
     const tempData = [];
@@ -264,7 +262,7 @@ const Weather = () => {
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-travel-slate mb-8 flex items-center dark:text-white">
             <Cloud className="mr-2 h-8 w-8 text-travel-teal animate-pulse" />
-            {t("weather_information_for")} {userLocation}
+            {t("weather_information")}
           </h1>
           
           {weather && (
@@ -319,7 +317,7 @@ const Weather = () => {
                     {getWeatherIcon(weather.condition, 'h-16 w-16')}
                   </div>
                   <div className="flex-grow text-center md:text-left">
-                    <h2 className="text-2xl font-bold text-white drop-shadow-md">{weather.location}</h2>
+                    <h2 className="text-2xl font-bold text-white drop-shadow-md">{userLocation}</h2>
                     <div className="mt-2 flex flex-col md:flex-row md:items-baseline gap-2 md:gap-4">
                       <span className="text-5xl font-bold text-white drop-shadow-md">{weather.temperature}°C</span>
                       <span className="text-xl text-white/90 drop-shadow">{weather.condition}</span>
@@ -360,7 +358,7 @@ const Weather = () => {
                       data={temperatureData}
                       margin={{ top: 20, right: 30, left: 10, bottom: 20 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#2d3748' : '#f0f0f0'} />
                       <XAxis 
                         dataKey="time" 
                         tick={{ fill: theme === 'dark' ? '#e0e0e0' : '#334155', fontSize: 12 }}
@@ -551,6 +549,16 @@ const Weather = () => {
           100% {
             box-shadow: 0 0 30px 10px rgba(255, 204, 0, 0.6);
           }
+        }
+
+        .animate-fade-in {
+          opacity: 0;
+          animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
         `}
       </style>

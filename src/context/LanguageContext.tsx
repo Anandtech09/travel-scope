@@ -28,8 +28,11 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   // Save language preference to localStorage when it changes
   useEffect(() => {
     localStorage.setItem("language", language);
-    // Add a custom event to notify components when language changes
-    document.dispatchEvent(new CustomEvent("languageChange", { detail: language }));
+    
+    // Force update all components that use the t function
+    document.documentElement.lang = language;
+    // Dispatch a custom event for components to listen to
+    window.dispatchEvent(new CustomEvent("languageChange", { detail: language }));
   }, [language]);
   
   // Translation function that can be used across components

@@ -1,6 +1,12 @@
 
 import React, { useState, useContext, useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger 
+} from "./ui/dropdown-menu";
 import { Globe } from "lucide-react";
 import { ThemeContext } from "@/context/ThemeContext";
 import { LanguageContext } from "@/context/LanguageContext";
@@ -41,7 +47,7 @@ const SettingsPopover: React.FC = () => {
     }
   };
 
-  // Effect to close popover on outside click (mobile)
+  // Effect to ensure Popover stays in sync with open state
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (open && !(e.target as Element).closest('.settings-popover')) {
@@ -92,7 +98,7 @@ const SettingsPopover: React.FC = () => {
                   type="color"
                   value={customColor}
                   onChange={(e) => setCustomColor(e.target.value)}
-                  className="w-8 h-8 border rounded"
+                  className="w-8 h-8 border rounded cursor-pointer"
                 />
               </div>
             )}
