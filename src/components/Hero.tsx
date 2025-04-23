@@ -4,7 +4,7 @@ import RandomBackgroundSelector from './RandomBackgroundSelector';
 
 const Hero = () => {
   return (
-    <RandomBackgroundSelector className="py-20">
+    <RandomBackgroundSelector className="py-20 bg-fixed bg-cover bg-center" style={{ backgroundAttachment: 'fixed' }}>
       <div className="container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg mb-4">
           Discover Your Perfect Destination

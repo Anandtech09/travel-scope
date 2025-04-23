@@ -19,7 +19,6 @@ import {
   Hotel, 
   Camera, 
   Clock,
-  X,
   Loader2,
   Plane
 } from 'lucide-react';
@@ -56,6 +55,9 @@ interface DestinationDetails {
     other: number;
   };
 }
+
+// Default image for destinations without images
+const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1506744038136-46273834b3fb";
 
 // Sample fallback data if API fails
 const fallbackDetails: DestinationDetails = {
@@ -156,26 +158,26 @@ const DestinationDetail: React.FC<DestinationDetailProps> = ({ destination, open
 
   if (!destination) return null;
   
+  // Use default image if destination image is missing
+  const destinationImage = destination.image || destination.imageUrl || DEFAULT_IMAGE;
+  
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto" aria-describedby="destination-description">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-2xl font-bold text-travel-slate">
               {destination.name}
             </DialogTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
           </div>
-          <DialogDescription className="text-travel-slate/70">
+          <DialogDescription id="destination-description" className="text-travel-slate/70">
             Detailed information and travel guide for {destination.name}, {destination.country}
           </DialogDescription>
         </DialogHeader>
         
         <div className="relative h-60 w-full mt-4 rounded-md overflow-hidden">
           <img 
-            src={destination.image} 
+            src={destinationImage} 
             alt={destination.name}
             className="w-full h-full object-cover"
           />
@@ -204,12 +206,11 @@ const DestinationDetail: React.FC<DestinationDetailProps> = ({ destination, open
               <p className="text-gray-600">{destination.description}</p>
             </div>
             
-            {details.expenses && (
-              <div>
-                <h3 className="text-lg font-semibold mb-3 text-travel-slate">Estimated Expenses</h3>
-                <ExpenseChart expenses={details.expenses} />
-              </div>
-            )}
+            {/* Expense Chart - Explicitly show expense chart with fallback data if needed */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3 text-travel-slate">Estimated Expenses</h3>
+              <ExpenseChart expenses={details.expenses} />
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-4">

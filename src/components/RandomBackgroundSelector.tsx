@@ -14,9 +14,10 @@ const backgroundImages = [
 interface RandomBackgroundSelectorProps {
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-const RandomBackgroundSelector: React.FC<RandomBackgroundSelectorProps> = ({ children, className }) => {
+const RandomBackgroundSelector: React.FC<RandomBackgroundSelectorProps> = ({ children, className, style }) => {
   const [backgroundImage, setBackgroundImage] = useState<string>('');
   
   useEffect(() => {
@@ -35,7 +36,9 @@ const RandomBackgroundSelector: React.FC<RandomBackgroundSelectorProps> = ({ chi
       style={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
-        backgroundPosition: 'center'
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        ...style
       }}
     >
       <div className="absolute inset-0 bg-black bg-opacity-40"></div>
