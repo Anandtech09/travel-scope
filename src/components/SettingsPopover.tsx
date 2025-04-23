@@ -1,5 +1,5 @@
 
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Globe } from "lucide-react";
 import { ThemeContext } from "@/context/ThemeContext";
@@ -23,8 +23,40 @@ const SettingsPopover: React.FC = () => {
   const { language, setLanguage, t } = useContext(LanguageContext);
   const [open, setOpen] = useState(false);
 
+  // Function to handle theme change
+  const handleThemeChange = (newTheme: string) => {
+    setTheme(newTheme as any);
+    // Close popover after selection on mobile
+    if (window.innerWidth < 768) {
+      setTimeout(() => setOpen(false), 300);
+    }
+  };
+
+  // Function to handle language change
+  const handleLanguageChange = (newLanguage: string) => {
+    setLanguage(newLanguage);
+    // Close popover after selection on mobile
+    if (window.innerWidth < 768) {
+      setTimeout(() => setOpen(false), 300);
+    }
+  };
+
+  // Effect to close popover on outside click (mobile)
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (open && !(e.target as Element).closest('.settings-popover')) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [open]);
+
   return (
-    <div className="absolute top-4 right-4 z-50">
+    <div className="absolute top-4 right-4 z-50 settings-popover">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
@@ -34,15 +66,19 @@ const SettingsPopover: React.FC = () => {
             <Globe className="text-travel-teal" size={28} />
           </button>
         </PopoverTrigger>
-        <PopoverContent className="w-72 p-4">
+        <PopoverContent className="w-72 p-4 bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700">
           <div>
-            <div className="mb-3 font-semibold">{t("choose_theme")}</div>
+            <div className="mb-3 font-semibold dark:text-white">{t("choose_theme")}</div>
             <div className="flex items-center gap-3 mb-2">
               {themeOptions.map((th) => (
                 <button
                   key={th.value}
-                  onClick={() => setTheme(th.value as any)}
-                  className={`px-3 py-1.5 rounded ${theme === th.value ? "bg-travel-teal text-white" : "bg-muted"} text-sm font-medium`}
+                  onClick={() => handleThemeChange(th.value)}
+                  className={`px-3 py-1.5 rounded transition-colors ${
+                    theme === th.value 
+                      ? "bg-travel-teal text-white" 
+                      : "bg-gray-100 dark:bg-gray-700 dark:text-gray-200"
+                  } text-sm font-medium`}
                 >
                   {t(th.labelKey)}
                 </button>
@@ -50,7 +86,7 @@ const SettingsPopover: React.FC = () => {
             </div>
             {theme === "custom" && (
               <div className="flex items-center gap-2 mb-4">
-                <label className="text-sm" htmlFor="custom-color">{t("custom_color")}</label>
+                <label className="text-sm dark:text-white" htmlFor="custom-color">{t("custom_color")}</label>
                 <input
                   id="custom-color"
                   type="color"
@@ -60,13 +96,17 @@ const SettingsPopover: React.FC = () => {
                 />
               </div>
             )}
-            <div className="mb-2 mt-2 font-semibold">{t("choose_language")}</div>
+            <div className="mb-2 mt-2 font-semibold dark:text-white">{t("choose_language")}</div>
             <div className="grid grid-cols-2 gap-2">
               {languageOptions.map((lang) => (
                 <button
                   key={lang.value}
-                  onClick={() => setLanguage(lang.value)}
-                  className={`px-3 py-1.5 rounded ${language === lang.value ? "bg-travel-teal text-white" : "bg-muted"} text-sm`}
+                  onClick={() => handleLanguageChange(lang.value)}
+                  className={`px-3 py-1.5 rounded transition-colors ${
+                    language === lang.value 
+                      ? "bg-travel-teal text-white" 
+                      : "bg-gray-100 dark:bg-gray-700 dark:text-gray-200"
+                  } text-sm`}
                 >
                   {lang.label}
                 </button>

@@ -25,18 +25,36 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Apply theme to document root
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+      document.documentElement.classList.remove("custom");
       document.documentElement.style.setProperty("--primary", "#0EA5E9");
     } else if (theme === "custom") {
       document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("custom");
+      document.documentElement.classList.remove("light");
       document.documentElement.style.setProperty("--primary", customColor);
+      // Apply custom color to all elements with travel-teal class
+      document.querySelectorAll(".text-travel-teal").forEach(el => {
+        (el as HTMLElement).style.color = customColor;
+      });
+      document.querySelectorAll(".bg-travel-teal").forEach(el => {
+        (el as HTMLElement).style.backgroundColor = customColor;
+      });
     } else {
       document.documentElement.classList.remove("dark");
+      document.documentElement.classList.remove("custom");
+      document.documentElement.classList.add("light");
       document.documentElement.style.setProperty("--primary", "#0EA5E9");
     }
 
     // Store theme and customColor in localStorage to persist between sessions
     localStorage.setItem("theme", theme);
     localStorage.setItem("customColor", customColor);
+    
+    // Dispatch a custom event to notify components of theme change
+    document.dispatchEvent(new CustomEvent("themeChange", { 
+      detail: { theme, customColor } 
+    }));
   }, [theme, customColor]);
 
   // Load saved theme and customColor from localStorage on initial load

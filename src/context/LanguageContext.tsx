@@ -1,5 +1,6 @@
 
 import React, { createContext, useState, ReactNode, useEffect } from "react";
+import translations from "../i18n/translations.json";
 
 interface LanguageContextProps {
   language: string;
@@ -27,13 +28,17 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   // Save language preference to localStorage when it changes
   useEffect(() => {
     localStorage.setItem("language", language);
+    // Add a custom event to notify components when language changes
+    document.dispatchEvent(new CustomEvent("languageChange", { detail: language }));
   }, [language]);
   
   // Translation function that can be used across components
   const t = (key: string): string => {
     try {
-      const translations = require('../i18n/translations.json');
-      return translations[language]?.[key] || translations["en"][key] || key;
+      // Ensure we have the language, fallback to English if needed
+      const currentLang = language in translations ? language : "en";
+      // Return the translation or fallback to the key if not found
+      return translations[currentLang]?.[key] || translations.en[key] || key;
     } catch (error) {
       console.error("Translation error:", error);
       return key;
