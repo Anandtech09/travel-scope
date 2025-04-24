@@ -1,6 +1,6 @@
 import { Destination } from "../components/DestinationCard";
 
-const BASE_URL = "https://travel-scope.onrender.com/";
+const BASE_URL = "https://travel-scope.onrender.com";
 
 /**
  * Get travel recommendations using the backend API
