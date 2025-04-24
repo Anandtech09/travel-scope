@@ -1,3 +1,4 @@
+
 /**
  * Integration with Gemini API for travel recommendations
  */
@@ -139,15 +140,16 @@ export const getDestinationDetails = async (destination: Destination) => {
         "bestTimeToVisit": "Best seasons or months to visit",
         "localTips": "Tips for travelers visiting this destination",
         "expenses": {
-          "transportation": Number (percentage of budget),
-          "accommodation": Number (percentage of budget),
-          "food": Number (percentage of budget),
-          "activities": Number (percentage of budget),
-          "other": Number (percentage of budget)
+          "transportation": Number (exact percentage),
+          "accommodation": Number (exact percentage),
+          "food": Number (exact percentage),
+          "activities": Number (exact percentage),
+          "other": Number (exact percentage)
         }
       }
       
-      IMPORTANT: All expense percentage values must be numbers, not objects or ranges. For example: "transportation": 30 (not "transportation": {"min": 25, "max": 35}).
+      IMPORTANT: All expense percentage values must be exact numbers, not objects, strings, or ranges.
+      For example: "transportation": 30 (not "transportation": {"min": 25, "max": 35} or "25-35%").
       Return ONLY the JSON object, no other text.
     `;
 
@@ -190,17 +192,33 @@ export const getDestinationDetails = async (destination: Destination) => {
       throw new Error("Failed to extract details from API response");
     }
     
-    const details = JSON.parse(jsonMatch[0]);
+    let details = JSON.parse(jsonMatch[0]);
     
-    // Ensure expense values are numbers, not objects
+    // Ensure expense values are numbers, not objects or strings
     if (details.expenses) {
       const { expenses } = details;
       details.expenses = {
-        transportation: typeof expenses.transportation === 'object' ? 20 : Number(expenses.transportation),
-        accommodation: typeof expenses.accommodation === 'object' ? 30 : Number(expenses.accommodation),
-        food: typeof expenses.food === 'object' ? 25 : Number(expenses.food),
-        activities: typeof expenses.activities === 'object' ? 15 : Number(expenses.activities),
-        other: typeof expenses.other === 'object' ? 10 : Number(expenses.other)
+        transportation: typeof expenses.transportation === 'number' ? expenses.transportation : 20,
+        accommodation: typeof expenses.accommodation === 'number' ? expenses.accommodation : 30,
+        food: typeof expenses.food === 'number' ? expenses.food : 25,
+        activities: typeof expenses.activities === 'number' ? expenses.activities : 15,
+        other: typeof expenses.other === 'number' ? expenses.other : 10
+      };
+      
+      // Extra validation to ensure all values are numbers
+      Object.keys(details.expenses).forEach(key => {
+        if (typeof details.expenses[key] !== 'number') {
+          details.expenses[key] = parseInt(details.expenses[key]) || 0;
+        }
+      });
+    } else {
+      // If expenses object is missing, create a default one
+      details.expenses = {
+        transportation: 20,
+        accommodation: 30,
+        food: 25,
+        activities: 15,
+        other: 10
       };
     }
     
