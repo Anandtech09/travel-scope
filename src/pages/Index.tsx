@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import SearchForm from '../components/SearchForm';
@@ -9,9 +8,11 @@ import Footer from '../components/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { Compass, Loader2, AlertTriangle } from 'lucide-react';
 import { getTravelRecommendations } from '../utils/geminiApi';
+import { LanguageContext } from '@/context/LanguageContext';
 
 const Index = () => {
   const { toast } = useToast();
+  const { t } = useContext(LanguageContext);
   const [isLoading, setIsLoading] = useState(false);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
@@ -20,7 +21,6 @@ const Index = () => {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [searchAttempts, setSearchAttempts] = useState(0);
 
-  // Listen for toast events from other components
   useEffect(() => {
     const handleToastEvent = (event: CustomEvent) => {
       if (event.detail) {
@@ -39,7 +39,6 @@ const Index = () => {
     };
   }, [toast]);
 
-  // Sample destinations if the API is slow to respond
   const sampleDestinations: Destination[] = [
     {
       id: "sample-1",
@@ -134,12 +133,9 @@ const Index = () => {
     setSearchAttempts(prev => prev + 1);
 
     try {
-      // Get real recommendations using Gemini API
       let recommendedDestinations = await getTravelRecommendations(location, budget);
       
-      // If API response is slow or returns no results, use sample data after first attempt
       if ((recommendedDestinations.length === 0 || searchAttempts > 0) && sampleDestinations.length > 0) {
-        // Filter sample destinations to match budget
         recommendedDestinations = sampleDestinations.filter(dest => dest.totalBudget <= budget);
         
         toast({
@@ -166,7 +162,6 @@ const Index = () => {
     } catch (error) {
       console.error("Error getting travel recommendations:", error);
       
-      // Use sample data as fallback on error
       if (sampleDestinations.length > 0) {
         setDestinations(sampleDestinations);
         toast({
@@ -205,7 +200,7 @@ const Index = () => {
           {isLoading && (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="animate-spin h-12 w-12 text-travel-teal mb-4" />
-              <p className="text-travel-slate dark:text-gray-300">Finding perfect destinations for you...</p>
+              <p className="text-travel-slate dark:text-gray-300">{t("searching")}...</p>
             </div>
           )}
           
@@ -213,7 +208,7 @@ const Index = () => {
             <div className="py-16">
               <h2 className="text-2xl md:text-3xl font-bold text-travel-slate dark:text-white mb-8 flex items-center">
                 <Compass className="mr-2 h-6 w-6 text-travel-teal" /> 
-                Recommended Destinations
+                {t("recommended_destinations")}
               </h2>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -234,7 +229,7 @@ const Index = () => {
               <div className="mx-auto w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-4">
                 <AlertTriangle className="h-8 w-8 text-red-500" />
               </div>
-              <h3 className="text-xl font-semibold text-travel-slate dark:text-white mb-2">Search Error</h3>
+              <h3 className="text-xl font-semibold text-travel-slate dark:text-white mb-2">{t("search_error")}</h3>
               <p className="text-travel-slate dark:text-gray-300 max-w-lg mx-auto">{searchError}</p>
             </div>
           )}
@@ -243,26 +238,28 @@ const Index = () => {
             <div className="py-16">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                 <div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-travel-slate dark:text-white mb-4">How TravelScope Works</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold text-travel-slate dark:text-white mb-4">
+                    {t("how_travelscope_works")}
+                  </h2>
                   <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Our AI-powered travel recommendation engine helps you discover perfect destinations based on your location and budget.
+                    {t("travel_engine_description")}
                   </p>
                   <ul className="space-y-4">
                     <li className="flex items-start">
                       <span className="flex-shrink-0 h-6 w-6 rounded-full bg-travel-lightBlue text-travel-teal flex items-center justify-center mr-3">1</span>
-                      <p className="text-gray-600 dark:text-gray-300">Enter your current location and travel budget</p>
+                      <p className="text-gray-600 dark:text-gray-300">{t("step1")}</p>
                     </li>
                     <li className="flex items-start">
                       <span className="flex-shrink-0 h-6 w-6 rounded-full bg-travel-lightBlue text-travel-teal flex items-center justify-center mr-3">2</span>
-                      <p className="text-gray-600 dark:text-gray-300">Our AI analyzes transportation costs and recommends destinations</p>
+                      <p className="text-gray-600 dark:text-gray-300">{t("step2")}</p>
                     </li>
                     <li className="flex items-start">
                       <span className="flex-shrink-0 h-6 w-6 rounded-full bg-travel-lightBlue text-travel-teal flex items-center justify-center mr-3">3</span>
-                      <p className="text-gray-600 dark:text-gray-300">Browse detailed information about each destination</p>
+                      <p className="text-gray-600 dark:text-gray-300">{t("step3")}</p>
                     </li>
                     <li className="flex items-start">
                       <span className="flex-shrink-0 h-6 w-6 rounded-full bg-travel-lightBlue text-travel-teal flex items-center justify-center mr-3">4</span>
-                      <p className="text-gray-600 dark:text-gray-300">Generate a custom trip plan for your selected destination</p>
+                      <p className="text-gray-600 dark:text-gray-300">{t("step4")}</p>
                     </li>
                   </ul>
                 </div>
@@ -274,8 +271,8 @@ const Index = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
                     <div className="absolute bottom-4 left-4 text-white">
-                      <h3 className="text-xl font-bold">Start Your Adventure</h3>
-                      <p className="text-sm text-white/80">Enter your details above to begin</p>
+                      <h3 className="text-xl font-bold">{t("start_adventure")}</h3>
+                      <p className="text-sm text-white/80">{t("enter_details_begin")}</p>
                     </div>
                   </div>
                 </div>

@@ -1,8 +1,12 @@
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { MapPin } from 'lucide-react';
+import { LanguageContext } from '@/context/LanguageContext';
 
 const Footer = () => {
+  const { t } = useContext(LanguageContext);
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-travel-slate text-white py-12 px-6">
       <div className="max-w-7xl mx-auto">
@@ -13,42 +17,42 @@ const Footer = () => {
               <h3 className="text-xl font-bold">TravelScope</h3>
             </div>
             <p className="text-white/70 text-sm">
-              AI-powered travel recommendations to help you discover your next adventure.
+              {t("footer_description")}
             </p>
           </div>
           
           <div>
-            <h4 className="font-semibold text-lg mb-4">Quick Links</h4>
+            <h4 className="font-semibold text-lg mb-4">{t("quick_links")}</h4>
             <ul className="space-y-2 text-white/70">
-              <li><a href="#" className="hover:text-travel-teal transition-colors">Home</a></li>
-              <li><a href="#" className="hover:text-travel-teal transition-colors">Destinations</a></li>
-              <li><a href="#" className="hover:text-travel-teal transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-travel-teal transition-colors">Contact</a></li>
+              <li><a href="#" className="hover:text-travel-teal transition-colors">{t("link_home")}</a></li>
+              <li><a href="#" className="hover:text-travel-teal transition-colors">{t("link_destinations")}</a></li>
+              <li><a href="#" className="hover:text-travel-teal transition-colors">{t("link_about")}</a></li>
+              <li><a href="#" className="hover:text-travel-teal transition-colors">{t("link_contact")}</a></li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-semibold text-lg mb-4">Features</h4>
+            <h4 className="font-semibold text-lg mb-4">{t("features")}</h4>
             <ul className="space-y-2 text-white/70">
-              <li><a href="#" className="hover:text-travel-teal transition-colors">AI Recommendations</a></li>
-              <li><a href="#" className="hover:text-travel-teal transition-colors">Budget Planning</a></li>
-              <li><a href="#" className="hover:text-travel-teal transition-colors">Transportation Info</a></li>
-              <li><a href="#" className="hover:text-travel-teal transition-colors">Travel Guides</a></li>
+              <li><a href="#" className="hover:text-travel-teal transition-colors">{t("feature_ai")}</a></li>
+              <li><a href="#" className="hover:text-travel-teal transition-colors">{t("feature_budget")}</a></li>
+              <li><a href="#" className="hover:text-travel-teal transition-colors">{t("feature_transport")}</a></li>
+              <li><a href="#" className="hover:text-travel-teal transition-colors">{t("feature_guides")}</a></li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-semibold text-lg mb-4">Contact Us</h4>
+            <h4 className="font-semibold text-lg mb-4">{t("contact_us")}</h4>
             <ul className="space-y-2 text-white/70">
-              <li>Email: info@travelscope.com</li>
-              <li>Phone: +1 (555) 123-4567</li>
-              <li>Address: 123 Travel Street, Explore City</li>
+              <li>{t("email")}</li>
+              <li>{t("phone")}</li>
+              <li>{t("address")}</li>
             </ul>
           </div>
         </div>
         
         <div className="border-t border-white/10 mt-8 pt-8 text-center text-white/50 text-sm">
-          &copy; {new Date().getFullYear()} TravelScope. All rights reserved.
+          {t("copyright").replace("2025", currentYear.toString())}
         </div>
       </div>
     </footer>

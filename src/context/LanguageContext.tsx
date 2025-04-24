@@ -30,7 +30,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     localStorage.setItem("language", language);
     
-    // Force update all components that use the t function
+    // Set the language attribute on the HTML element
     document.documentElement.lang = language;
     
     // Dispatch a custom event for components to listen to
@@ -57,8 +57,12 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   // Translation function that can be used across components
   const t = (key: string): string => {
     try {
+      // Check if key exists in translations
+      if (!key) return "";
+
       // Ensure we have the language, fallback to English if needed
       const currentLang = language in translations ? language : "en";
+      
       // Get the translations for the current language
       const currentTranslations = translations[currentLang as keyof typeof translations] || {};
       

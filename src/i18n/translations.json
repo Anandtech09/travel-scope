@@ -1,4 +1,3 @@
-
 {
   "en": {
     "home": "Home",
@@ -45,7 +44,41 @@
     "travel_budget": "Travel Budget",
     "enter_budget": "Enter your budget",
     "searching": "Searching",
-    "find_destinations": "Find Destinations"
+    "find_destinations": "Find Destinations",
+    
+    "discover_perfect_destination": "Discover Your Perfect Destination",
+    "ai_powered_travel_planner": "Let our AI-powered travel planner find amazing destinations that match your budget and preferences",
+    "destinations_count": "1,500+ destinations • 100+ countries • Unlimited adventures",
+    
+    "how_travelscope_works": "How TravelScope Works",
+    "travel_engine_description": "Our AI-powered travel recommendation engine helps you discover perfect destinations based on your location and budget.",
+    "step1": "Enter your current location and travel budget",
+    "step2": "Our AI analyzes transportation costs and recommends destinations",
+    "step3": "Browse detailed information about each destination",
+    "step4": "Generate a custom trip plan for your selected destination",
+    "start_adventure": "Start Your Adventure",
+    "enter_details_begin": "Enter your details above to begin",
+    
+    "recommended_destinations": "Recommended Destinations",
+    "search_error": "Search Error",
+    
+    "footer_description": "AI-powered travel recommendations to help you discover your next adventure.",
+    "quick_links": "Quick Links",
+    "features": "Features",
+    "contact_us": "Contact Us",
+    "email": "Email: info@travelscope.com",
+    "phone": "Phone: +1 (555) 123-4567",
+    "address": "Address: 123 Travel Street, Explore City",
+    "copyright": "© 2025 TravelScope. All rights reserved.",
+    
+    "link_home": "Home",
+    "link_destinations": "Destinations",
+    "link_about": "About Us",
+    "link_contact": "Contact",
+    "feature_ai": "AI Recommendations",
+    "feature_budget": "Budget Planning",
+    "feature_transport": "Transportation Info",
+    "feature_guides": "Travel Guides"
   },
   "ml": {
     "home": "ഹോം",
@@ -92,7 +125,41 @@
     "travel_budget": "യാത്രാ ബജറ്റ്",
     "enter_budget": "നിങ്ങളുടെ ബജറ്റ് നൽകുക",
     "searching": "തിരയുന്നു",
-    "find_destinations": "ലക്ഷ്യസ്ഥാനങ്ങൾ കണ്ടെത്തുക"
+    "find_destinations": "ലക്ഷ്യസ്ഥാനങ്ങൾ കണ്ടെത്തുക",
+    
+    "discover_perfect_destination": "നിങ്ങളുടെ മികച്ച ലക്ഷ്യസ്ഥാനം കണ്ടെത്തുക",
+    "ai_powered_travel_planner": "ഞങ്ങളുടെ AI-പവർ യാത്രാ പ്ലാനർ നിങ്ങളുടെ ബജറ്റിനും താല്പര്യങ്ങൾക്കും അനുസരിച്ചുള്ള മികച്ച ലക്ഷ്യസ്ഥാനങ്ങൾ കണ്ടെത്തട്ടെ",
+    "destinations_count": "1,500+ ലക്ഷ്യസ്ഥാനങ്ങൾ • 100+ രാജ്യങ്ങൾ • അതിരറ്റ അഡ്വെഞ്ചറുകൾ",
+    
+    "how_travelscope_works": "ട്രാവൽസ്കോപ്പ് എങ്ങനെ പ്രവർത്തിക്കുന്നു",
+    "travel_engine_description": "ഞങ്ങളുടെ AI-പവർ യാത്രാ ശുപാർശ എഞ്ചിൻ നിങ്ങളുടെ സ്ഥലത്തിനും ബജറ്റിനും അനുസരിച്ച് മികച്ച ലക്ഷ്യസ്ഥാനങ്ങൾ കണ്ടെത്താൻ സഹായിക്കുന്നു.",
+    "step1": "നിങ്ങളുടെ നിലവിലെ സ്ഥലവും യാത്രാ ബജറ്റും നൽകുക",
+    "step2": "ഞങ്ങളുടെ AI ട്രാൻസ്പോർട്ടേഷൻ ചെലവുകൾ വിശകലനം ചെയ്ത് ലക്ഷ്യസ്ഥാനങ്ങൾ ശുപാർശ ചെയ്യുന്നു",
+    "step3": "ഓരോ ലക്ഷ്യസ്ഥാനത്തെക്കുറിച്ചും വിശദമായ വിവരങ്ങൾ ബ്രൗസ് ചെയ്യുക",
+    "step4": "നിങ്ങൾ തിരഞ്ഞെടുത്ത ലക്ഷ്യസ്ഥാനത്തിനായി ഒരു കസ്റ്റം ട്രിപ്പ് പ്ലാൻ ജനറേറ്റ് ചെയ്യുക",
+    "start_adventure": "നിങ്ങളുടെ അഡ്വെഞ്ചർ ആരംഭിക്കുക",
+    "enter_details_begin": "ആരംഭിക്കാൻ മുകളിൽ നിങ്ങളുടെ വിശദാംശങ്ങൾ നൽകുക",
+    
+    "recommended_destinations": "ശുപാർശ ചെയ്ത ലക്ഷ്യസ്ഥാനങ്ങൾ",
+    "search_error": "തിരയൽ പിശക്",
+    
+    "footer_description": "നിങ്ങളുടെ അടുത്ത അഡ്വെഞ്ചർ കണ്ടെത്താൻ സഹായിക്കുന്ന AI-പവർ യാത്രാ ശുപാർശകൾ.",
+    "quick_links": "ദ്രുത കണ്ണികൾ",
+    "features": "സവിശേഷതകൾ",
+    "contact_us": "ഞങ്ങളുമായി ബന്ധപ്പെടുക",
+    "email": "ഇമെയിൽ: info@travelscope.com",
+    "phone": "ഫോൺ: +1 (555) 123-4567",
+    "address": "വിലാസം: 123 ട്രാവൽ സ്ട്രീറ്റ്, എക്സ്പ്ലോർ സിറ്റി",
+    "copyright": "© 2025 ട്രാവൽസ്കോപ്പ്. എല്ലാ അവകാശങ്ങളും നിക്ഷിപ്തം.",
+    
+    "link_home": "ഹോം",
+    "link_destinations": "ലക്ഷ്യസ്ഥാനങ്ങൾ",
+    "link_about": "ഞങ്ങളെക്കുറിച്ച്",
+    "link_contact": "ബന്ധപ്പെടുക",
+    "feature_ai": "AI ശുപാർശകൾ",
+    "feature_budget": "ബജറ്റ് പ്ലാനിംഗ്",
+    "feature_transport": "ട്രാൻസ്പോർട്ടേഷൻ വിവരങ്ങൾ",
+    "feature_guides": "യാത്രാ ഗൈഡുകൾ"
   },
   "hi": {
     "home": "होम",
@@ -139,7 +206,41 @@
     "travel_budget": "यात्रा बजट",
     "enter_budget": "अपना बजट दर्ज करें",
     "searching": "खोज रहे हैं",
-    "find_destinations": "गंतव्य खोजें"
+    "find_destinations": "गंतव्य खोजें",
+    
+    "discover_perfect_destination": "अपना परफेक्ट गंतव्य खोजें",
+    "ai_powered_travel_planner": "हमारा AI-संचालित ट्रैवल प्लानर आपके बजट और प्राथमिकताओं के अनुसार अद्भुत गंतव्य खोजता है",
+    "destinations_count": "1,500+ गंतव्य • 100+ देश • असीमित साहसिक यात्राएं",
+    
+    "how_travelscope_works": "ट्रैवलस्कोप कैसे काम करता है",
+    "travel_engine_description": "हमारा AI-संचालित ट्रैवल रेकमेंडेशन इंजन आपके स्थान और बजट के आधार पर परफेक्ट गंतव्य खोजने में मदद करता है।",
+    "step1": "अपना वर्तमान स्थान और यात्रा बजट दर्ज करें",
+    "step2": "हमारा AI परिवहन लागत का विश्लेषण करता है और गंतव्यों की सिफारिश करता है",
+    "step3": "प्रत्येक गंतव्य के बारे में विस्तृत जानकारी ब्राउज़ करें",
+    "step4": "अपने चुने हुए गंतव्य के लिए एक कस्टम ट्रिप प्लान जेनरेट करें",
+    "start_adventure": "अपनी यात्रा शुरू करें",
+    "enter_details_begin": "शुरू करने के लिए अपना विवरण ऊपर दर्ज करें",
+    
+    "recommended_destinations": "अनुशंसित गंतव्य",
+    "search_error": "खोज त्रुटि",
+    
+    "footer_description": "आपकी अगली यात्रा खोजने में मदद करने के लिए AI-संचालित यात्रा सिफारिशें।",
+    "quick_links": "त्वरित लिंक",
+    "features": "विशेषताएँ",
+    "contact_us": "संपर्क करें",
+    "email": "ईमेल: info@travelscope.com",
+    "phone": "फोन: +1 (555) 123-4567",
+    "address": "पता: 123 ट्रैवल स्ट्रीट, एक्सप्लोर सिटी",
+    "copyright": "© 2025 ट्रैवलस्कोप। सर्वाधिकार सुरक्षित।",
+    
+    "link_home": "होम",
+    "link_destinations": "गंतव्य",
+    "link_about": "हमारे बारे में",
+    "link_contact": "संपर्क",
+    "feature_ai": "AI सिफारिशें",
+    "feature_budget": "बजट प्लानिंग",
+    "feature_transport": "परिवहन जानकारी",
+    "feature_guides": "यात्रा गाइड"
   },
   "ta": {
     "home": "முகப்பு",
@@ -186,6 +287,40 @@
     "travel_budget": "பயண பட்ஜெட்",
     "enter_budget": "உங்கள் பட்ஜெட்டை உள்ளிடவும்",
     "searching": "தேடுகிறது",
-    "find_destinations": "இலக்குகளைக் கண்டறியுங்கள்"
+    "find_destinations": "இலக்குகளைக் கண்டறியுங்கள்",
+    
+    "discover_perfect_destination": "உங்கள் சிறந்த இலக்கை கண்டறியுங்கள்",
+    "ai_powered_travel_planner": "எங்கள் AI-இயக்கப்படும் பயண திட்டமிடல் உங்கள் பட்ஜெட் மற்றும் விருப்பங்களுக்கு ஏற்ற அற்புதமான இடங்களைக் கண்டறியட்டும்",
+    "destinations_count": "1,500+ இடங்கள் • 100+ நாடுகள் • வரம்பற்ற சாகசங்கள்",
+    
+    "how_travelscope_works": "டிராவல்ஸ்கோப் எப்படி வேலை செய்கிறது",
+    "travel_engine_description": "எங்களின் AI-இயக்கப்படும் பயண பரிந்துரை இயந்திரம் உங்கள் இருப்பிடம் மற்றும் பட்ஜெட்டின் அடிப்படையில் சிறந்த இடங்களைக் கண்டறிய உதவுகிறது.",
+    "step1": "உங்கள் தற்போதைய இருப்பிடம் மற்றும் பயண பட்ஜெட்டை உள்ளிடவும்",
+    "step2": "எங்கள் AI போக்குவரத்து செலவுகளை பகுப்பாய்வு செய்து இடங்களைப் பரிந்துரைக்கிறது",
+    "step3": "ஒவ்வொரு இடத்தைப் பற்றிய விரிவான தகவலைப் பார்வையிடவும்",
+    "step4": "நீங்கள் தேர்ந்தெடுத்த இடத்திற்கான தனிப்பயன் பயணத் திட்டத்தை உருவாக்கவும்",
+    "start_adventure": "உங்கள் சாகசத்தைத் தொடங்குங்கள்",
+    "enter_details_begin": "தொடங்க மேலே உங்கள் விவரங்களை உள்ளிடவும்",
+    
+    "recommended_destinations": "பரிந்துரைக்கப்பட்ட இடங்கள்",
+    "search_error": "தேடல் பிழை",
+    
+    "footer_description": "உங்கள் அடுத்த சாகசத்தைக் கண்டறிய உதவும் AI-இயக்கப்படும் பயண பரிந்துரைகள்.",
+    "quick_links": "விரைவு இணைப்புகள்",
+    "features": "அம்சங்கள்",
+    "contact_us": "எங்களை தொடர்பு கொள்ளுங்கள்",
+    "email": "மின்னஞ்சல்: info@travelscope.com",
+    "phone": "தொலைபேசி: +1 (555) 123-4567",
+    "address": "முகவரி: 123 டிராவல் தெரு, எக்ஸ்ப்ளோர் நகரம்",
+    "copyright": "© 2025 டிராவல்ஸ்கோப். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
+    
+    "link_home": "முகப்பு",
+    "link_destinations": "இடங்கள்",
+    "link_about": "எங்களைப் பற்றி",
+    "link_contact": "தொடர்பு",
+    "feature_ai": "AI பரிந்துரைகள்",
+    "feature_budget": "பட்ஜெட் திட்டமிடல்",
+    "feature_transport": "போக்குவரத்து தகவல்",
+    "feature_guides": "பயண வழிகாட்டிகள்"
   }
 }

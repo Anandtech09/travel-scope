@@ -76,6 +76,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       document.documentElement.classList.add("light");
       document.documentElement.style.setProperty("--primary", "#0EA5E9");
     }
+    
+    // Ensure custom color is visible regardless of z-index
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .settings-popover button,
+      .settings-popover [role="dialog"] {
+        z-index: 9999 !important;
+      }
+    `;
+    document.head.appendChild(style);
   };
 
   useEffect(() => {
