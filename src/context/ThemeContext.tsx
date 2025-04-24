@@ -28,6 +28,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       document.documentElement.classList.remove("light");
       document.documentElement.classList.remove("custom");
       document.documentElement.style.setProperty("--primary", "#0EA5E9");
+      document.documentElement.style.removeProperty("--primary-hsl");
+      document.documentElement.style.removeProperty("--accent-hsl");
     } else if (themeValue === "custom") {
       document.documentElement.classList.remove("dark");
       document.documentElement.classList.add("custom");
@@ -58,26 +60,20 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       const hslString = `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
       document.documentElement.style.setProperty("--primary-hsl", hslString);
+      document.documentElement.style.setProperty("--accent-hsl", hslString);
       
-      // Apply custom color to all elements with text-travel-teal class in real-time
-      const tealTextElements = document.querySelectorAll(".text-travel-teal");
-      tealTextElements.forEach(el => {
-        (el as HTMLElement).style.color = colorValue;
-      });
-      
-      // Apply custom color to all elements with bg-travel-teal class in real-time
-      const tealBgElements = document.querySelectorAll(".bg-travel-teal");
-      tealBgElements.forEach(el => {
-        (el as HTMLElement).style.backgroundColor = colorValue;
-      });
+      // Apply custom color to all elements directly
+      updateAllThemeElements(colorValue);
     } else {
       document.documentElement.classList.remove("dark");
       document.documentElement.classList.remove("custom");
       document.documentElement.classList.add("light");
       document.documentElement.style.setProperty("--primary", "#0EA5E9");
+      document.documentElement.style.removeProperty("--primary-hsl");
+      document.documentElement.style.removeProperty("--accent-hsl");
     }
     
-    // Ensure custom color is visible regardless of z-index
+    // Ensure settings popover is on top
     const style = document.createElement('style');
     style.innerHTML = `
       .settings-popover button,
@@ -86,6 +82,44 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     `;
     document.head.appendChild(style);
+  };
+
+  const updateAllThemeElements = (colorValue: string) => {
+    // Update text colors
+    const tealTextElements = document.querySelectorAll(".text-travel-teal");
+    tealTextElements.forEach(el => {
+      (el as HTMLElement).style.color = colorValue;
+    });
+    
+    // Update background colors
+    const tealBgElements = document.querySelectorAll(".bg-travel-teal");
+    tealBgElements.forEach(el => {
+      (el as HTMLElement).style.backgroundColor = colorValue;
+    });
+
+    // Update border colors
+    const tealBorderElements = document.querySelectorAll(".border-travel-teal");
+    tealBorderElements.forEach(el => {
+      (el as HTMLElement).style.borderColor = colorValue;
+    });
+    
+    // Update SVG elements (for weather icons)
+    const svgElements = document.querySelectorAll("svg path");
+    svgElements.forEach(el => {
+      if (el.getAttribute('fill') === "#0EA5E9" || el.getAttribute('stroke') === "#0EA5E9") {
+        el.setAttribute('fill', colorValue);
+        el.setAttribute('stroke', colorValue);
+      }
+    });
+
+    // Update chart elements for recharts
+    const chartElements = document.querySelectorAll(".recharts-bar-rectangle");
+    chartElements.forEach(el => {
+      // For recharts elements with teal color
+      if (el.getAttribute('fill')?.includes('#0EA5E9')) {
+        el.setAttribute('fill', colorValue);
+      }
+    });
   };
 
   useEffect(() => {
@@ -103,6 +137,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     
     // Force all components to update
     document.dispatchEvent(new Event('themeUpdated'));
+    
+    // For custom theme, also update all elements directly
+    if (theme === "custom") {
+      // Wait a brief moment for the DOM to update
+      setTimeout(() => {
+        updateAllThemeElements(customColor);
+      }, 100);
+    }
     
     console.log("Theme applied:", theme, customColor);
   }, [theme, customColor]);

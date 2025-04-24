@@ -143,7 +143,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
                   placeholder={t("enter_city_country")}
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="pl-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-white/20"
+                  className="pl-10 bg-white/90 dark:bg-gray-800/90"
                 />
               </div>
               <Button 
@@ -171,7 +171,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
                   placeholder={t("enter_budget")}
                   value={budget}
                   onChange={(e) => setBudget(e.target.value)}
-                  className="pl-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-white/20"
+                  className="pl-10 bg-white/90 dark:bg-gray-800/90"
                   min="1"
                 />
               </div>

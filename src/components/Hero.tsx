@@ -18,7 +18,7 @@ const Hero = () => {
         <p className="text-xl text-white/90 drop-shadow-md max-w-2xl mx-auto mb-8">
           {t("ai_powered_travel_planner")}
         </p>
-        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 inline-block">
+        <div className="bg-white/10 rounded-lg p-4 inline-block shadow-lg">
           <p className="text-white text-lg">
             {t("destinations_count")}
           </p>

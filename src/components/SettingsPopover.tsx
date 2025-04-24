@@ -75,21 +75,23 @@ const SettingsPopover: React.FC = () => {
   }, [theme, customColor, language, setTheme, setCustomColor, setLanguage]);
 
   return (
-    <div className="absolute top-4 right-4 z-[1000] settings-popover">
+    <div className="absolute top-4 right-4 z-[9999] settings-popover">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
             aria-label="Settings"
-            className="bg-white/60 dark:bg-gray-900/80 rounded-full p-3 shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-white transition-colors cursor-pointer z-[1000]"
+            className="bg-white/60 dark:bg-gray-900/80 rounded-full p-3 shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-white transition-colors cursor-pointer"
+            style={{ zIndex: 9999 }}
           >
             <Globe className="text-travel-teal" size={28} />
           </button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-72 p-4 bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 z-[1001]"
+          className="w-72 p-4 bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700"
           side="bottom"
           align="end"
           sideOffset={10}
+          style={{ zIndex: 10000 }}
         >
           <div>
             <div className="mb-3 font-semibold dark:text-white">{t("choose_theme")}</div>
