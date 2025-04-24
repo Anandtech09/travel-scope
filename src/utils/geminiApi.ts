@@ -1,4 +1,3 @@
-
 /**
  * Integration with Gemini API for travel recommendations
  */
@@ -34,6 +33,12 @@ interface GeminiRequestBody {
     topP: number;
     maxOutputTokens: number;
   };
+}
+
+// Interface for handling cost objects from the API
+interface CostObject {
+  min?: number;
+  max?: number;
 }
 
 /**
@@ -102,13 +107,45 @@ export const getTravelRecommendations = async (
       throw new Error("Failed to extract destinations from API response");
     }
     
-    const destinations = JSON.parse(jsonMatch[0]);
+    const rawDestinations = JSON.parse(jsonMatch[0]);
     
-    // Add placeholder images for each destination
-    return destinations.map((dest: any, index: number) => ({
-      ...dest,
-      image: getDestinationImage(dest.name, index)
-    }));
+    // Normalize the destinations, especially the cost objects
+    const destinations = rawDestinations.map((dest: any, index: number) => {
+      // Handle costs that might come as objects with min/max values
+      const normalizedCost: { train?: number; bus?: number } = {};
+      
+      if (dest.cost) {
+        if (dest.cost.train) {
+          // If train cost is an object with min/max, use the average
+          if (typeof dest.cost.train === 'object' && (dest.cost.train.min !== undefined || dest.cost.train.max !== undefined)) {
+            const min = dest.cost.train.min || 0;
+            const max = dest.cost.train.max || min;
+            normalizedCost.train = (min + max) / 2;
+          } else {
+            normalizedCost.train = Number(dest.cost.train);
+          }
+        }
+        
+        if (dest.cost.bus) {
+          // If bus cost is an object with min/max, use the average
+          if (typeof dest.cost.bus === 'object' && (dest.cost.bus.min !== undefined || dest.cost.bus.max !== undefined)) {
+            const min = dest.cost.bus.min || 0;
+            const max = dest.cost.bus.max || min;
+            normalizedCost.bus = (min + max) / 2;
+          } else {
+            normalizedCost.bus = Number(dest.cost.bus);
+          }
+        }
+      }
+
+      return {
+        ...dest,
+        cost: normalizedCost,
+        image: getDestinationImage(dest.name, index)
+      };
+    });
+    
+    return destinations;
   } catch (error) {
     console.error("Error fetching travel recommendations:", error);
     return [];
