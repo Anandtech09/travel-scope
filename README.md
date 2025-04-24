@@ -1,44 +1,110 @@
+# 🌍 TravelScope
 
-# TravelScope
+**TravelScope** is an AI-powered travel recommendation application that helps users discover ideal destinations based on their **budget** and **current location**. It leverages AI to estimate transportation costs and provides in-depth destination details for smarter travel planning.
 
-TravelScope is an AI-powered travel recommendation application that helps users discover ideal destinations based on their budget and location. The application leverages AI to analyze transportation costs and provides detailed information about recommended destinations.
+---
 
-## Deployed Link
-- Checkout this link for live: https://travel-scope.vercel.app/ 
+## 🚀 Live Demo
 
-## Features
+- **Frontend**: [TravelScope on Vercel](https://travel-scope.vercel.app/)
+- **Backend**: [API hosted on Render](https://travel-scope.onrender.com/)
 
-- **Budget and Location Input**: Enter your travel budget and current location to get personalized recommendations.
-- **AI Destination Recommendations**: Receive intelligent destination suggestions that fit within your budget.
-- **Destination Cards**: Browse visually appealing cards with key information about each recommended location.
-- **Transportation Cost Estimates**: View estimated costs for traveling by train or bus to each destination.
-- **Detailed Destination Information**: Access comprehensive details about accommodations, attractions, food, and local tips.
-- **Responsive Design**: Enjoy a seamless experience across all device sizes.
+---
 
-## Technologies Used
+## ✨ Features
 
-- **React**: Frontend UI library
-- **Tailwind CSS**: Utility-first CSS framework for styling
-- **shadcn/ui**: High-quality component library
-- **lucide-react**: Beautiful icon set
-- **React Router**: For application routing
-- **React Query**: For data fetching and state management
+- 🎯 **Smart Budget + Location Input**: Enter your travel budget and current city to get tailored suggestions.
+- 🧠 **AI Recommendations**: Intelligent destination suggestions powered by Gemini API.
+- 🗽 **Destination Cards**: Visually rich cards with highlights about each location.
+- 🚆 **Transport Cost Estimates**: Get estimates for bus/train fares to each location.
+- 📌 **Detailed Destination Info**: Find insights on hotels, attractions, food, and local tips.
+- 📱 **Responsive Design**: Optimized for desktop, tablet, and mobile experiences.
 
-## Getting Started
+---
 
-1. Clone the repository
-2. Install dependencies with `npm install`
-3. Start the development server with `npm run dev`
-4. Open your browser and navigate to `http://localhost:8080`
+## 🛠️ Tech Stack
 
-## Future Enhancements
+### Frontend
 
-- Integration with real transportation APIs for accurate fare estimates
-- User accounts and saved destinations
-- Trip planning functionality with itinerary generation
-- Google Maps integration for interactive location exploration
-- Weather forecasts for destination planning
+- **React**: Modern frontend framework
+- **Tailwind CSS**: Utility-first CSS for fast styling
+- **shadcn/ui**: Accessible component library
+- **lucide-react**: Sleek, open-source icon set
+- **React Router**: SPA routing and navigation
+- **React Query**: Powerful data fetching and caching
 
-## License
+### Backend
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+- **FastAPI**: High-performance Python API framework
+- **Uvicorn**: Lightning-fast ASGI server
+- **httpx**: Async HTTP client for external API calls
+- **python-dotenv**: Load environment variables
+- **pydantic**: Data parsing and validation
+- **Gemini API**: Provides AI-based travel data and recommendations
+
+---
+
+## ⚙️ Getting Started
+
+### 🖥️ Frontend Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/Anandtech09/travel-scope.git
+cd travel-scope
+
+# Install dependencies
+npm install
+
+# Run the development server
+npm run dev
+
+# Open your browser
+http://localhost:8080
+```
+
+### 🔧 Backend Setup
+
+```bash
+# Navigate to backend directory
+cd travel-scope/backend
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create .env file
+touch .env
+```
+
+**.env content**
+```
+GEMINI_API_KEY=your_gemini_api_key_here
+PORT=3001
+```
+
+**Start Backend Server**
+```bash
+uvicorn server:app --host 0.0.0.0 --port 3001
+```
+
+**Test Endpoints**
+- POST: `http://localhost:3001/api/travel-recommendations`
+- POST: `http://localhost:3001/api/destination-details`
+- Docs: `http://localhost:3001/docs`
+
+---
+
+## 🔮 Future Enhancements
+
+- ✈️ Real transportation API integration for live fares
+- 👤 User authentication and saved trips
+- 🗓️ Itinerary planner with AI suggestions
+- 🗸️ Google Maps embedding for dynamic navigation
+- ☂️ Weather forecasts for selected destinations
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for more details.
+
