@@ -3,6 +3,9 @@
 
 TravelScope is an AI-powered travel recommendation application that helps users discover ideal destinations based on their budget and location. The application leverages AI to analyze transportation costs and provides detailed information about recommended destinations.
 
+## Deployed Link
+- Checkout this link for live: https://travel-scope.vercel.app/ 
+
 ## Features
 
 - **Budget and Location Input**: Enter your travel budget and current location to get personalized recommendations.
