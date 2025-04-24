@@ -1,13 +1,24 @@
-
 /**
  * Integration with Gemini API for travel recommendations
  */
 
 import { Destination } from "../components/DestinationCard";
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+// Add a function to get the API key
+const getGeminiApiKey = (): string => {
+  // First, check if key is in localStorage
+  const storedKey = localStorage.getItem('GEMINI_API_KEY');
+  if (storedKey) return storedKey;
 
-// Updated to use the correct API URL with model name in the path
+  // Fallback to environment variable if set
+  const envKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (envKey) return envKey;
+
+  // If no key is found, throw an error
+  throw new Error('Gemini API Key is not configured. Please set it in settings.');
+};
+
+// Updated to use the new key retrieval method
 const API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent";
 
 interface GeminiRequestBody {
@@ -32,6 +43,8 @@ export const getTravelRecommendations = async (
   budget: number
 ): Promise<Destination[]> => {
   try {
+    const GEMINI_API_KEY = getGeminiApiKey();
+    
     const prompt = `
       Act as a travel expert. I am currently in ${location} and have a budget of $${budget} USD.
       I need recommendations for 6 destinations that I can travel to from my location within this budget.
@@ -106,6 +119,8 @@ export const getTravelRecommendations = async (
  */
 export const getDestinationDetails = async (destination: Destination) => {
   try {
+    const GEMINI_API_KEY = getGeminiApiKey();
+    
     const prompt = `
       Act as a travel expert. I want to visit ${destination.name} from ${destination.distance} away.
       Provide detailed information in JSON format with the following structure:
