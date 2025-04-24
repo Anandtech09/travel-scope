@@ -124,15 +124,22 @@ async def get_travel_recommendations(request: TravelRecommendationsRequest):
             )
 
         if response.status_code != 200:
+            print(f"Gemini API failed with status: {response.status_code}, response: {response.text}")
             raise HTTPException(
                 status_code=500, detail=f"Gemini API request failed with status {response.status_code}"
             )
 
         data = response.json()
+        if not data.get("candidates") or not data["candidates"][0].get("content"):
+            print(f"Invalid Gemini API response: {data}")
+            raise HTTPException(status_code=500, detail="Invalid Gemini API response format")
+        
         response_text = data["candidates"][0]["content"]["parts"][0]["text"]
+        print(f"Gemini API response text: {response_text}")
+        
         json_match = re.search(r"\[[\s\S]*\]", response_text)
-
         if not json_match:
+            print(f"Failed to extract JSON array from response: {response_text}")
             raise HTTPException(status_code=500, detail="Failed to extract destinations from API response")
 
         destinations = json.loads(json_match.group(0))
@@ -148,7 +155,9 @@ async def get_travel_recommendations(request: TravelRecommendationsRequest):
         return normalized_destinations
 
     except Exception as e:
-        print(f"Error fetching travel recommendations: {e}")
+        print(f"Error fetching travel recommendations: {str(e)}")
+        if 'response' in locals():
+            print(f"Response status: {response.status_code}, text: {response.text}")
         raise HTTPException(status_code=500, detail="Failed to fetch recommendations")
 
 # Endpoint to get destination details
