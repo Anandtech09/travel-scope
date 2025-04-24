@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Train, Bus, Calendar, ArrowRight } from 'lucide-react';
+import { MapPin, Train, Bus, Calendar, ArrowRight, Earth } from 'lucide-react';
 
 export interface Destination {
   id: string;
@@ -40,14 +40,25 @@ interface DestinationCardProps {
 }
 
 const DestinationCard: React.FC<DestinationCardProps> = ({ destination, onClick }) => {
+  const [imageError, setImageError] = useState(false);
+  
+  const fallbackImageUrl = "https://images.unsplash.com/photo-1475066392170-59d55d96fe51?auto=format&fit=crop&w=800&q=80";
+  
   return (
     <Card className="destination-card group h-full flex flex-col">
       <div className="relative h-48 overflow-hidden rounded-t-lg">
-        <img 
-          src={destination.image || destination.imageUrl} 
-          alt={destination.name}
-          className="w-full h-full object-cover"
-        />
+        {imageError ? (
+          <div className="w-full h-full bg-travel-lightBlue flex items-center justify-center">
+            <Earth className="w-16 h-16 text-travel-teal" />
+          </div>
+        ) : (
+          <img 
+            src={destination.image || destination.imageUrl || fallbackImageUrl} 
+            alt={destination.name}
+            className="w-full h-full object-cover"
+            onError={() => setImageError(true)}
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <h3 className="absolute bottom-3 left-3 text-white font-bold text-xl">{destination.name}</h3>
         {destination.country && (

@@ -4,12 +4,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { LanguageContext } from '@/context/LanguageContext';
 
 const Header = () => {
@@ -63,36 +57,27 @@ const Header = () => {
         
         {/* Mobile Navigation */}
         {isMobile && mobileMenuOpen && (
-          <div className="md:hidden py-2 pb-4 border-t dark:border-gray-700">
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="navigation" className="border-none">
-                <AccordionTrigger className="py-2 hover:no-underline">
-                  <span className="text-travel-slate dark:text-white">{t("navigation")}</span>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="flex flex-col space-y-2 pl-4">
-                    <Link 
-                      to="/" 
-                      className={`flex items-center text-travel-slate hover:text-travel-teal transition-colors dark:text-white dark:hover:text-travel-teal py-2 ${
-                        location.pathname === '/' ? 'font-medium text-travel-teal' : ''
-                      }`}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <span className="font-passero-one">{t("home")}</span>
-                    </Link>
-                    <Link 
-                      to="/weather" 
-                      className={`flex items-center text-travel-slate hover:text-travel-teal transition-colors dark:text-white dark:hover:text-travel-teal py-2 ${
-                        location.pathname === '/weather' ? 'font-medium text-travel-teal' : ''
-                      }`}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <span className="font-passero-one">{t("weather")}</span>
-                    </Link>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+          <div className="md:hidden py-2 pb-4 border-t dark:border-gray-700" style={{ zIndex: 9999999 }}>
+            <div className="flex flex-col space-y-2 pl-4">
+              <Link 
+                to="/" 
+                className={`flex items-center text-travel-slate hover:text-travel-teal transition-colors dark:text-white dark:hover:text-travel-teal py-2 ${
+                  location.pathname === '/' ? 'font-medium text-travel-teal' : ''
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <span className="font-passero-one">{t("home")}</span>
+              </Link>
+              <Link 
+                to="/weather" 
+                className={`flex items-center text-travel-slate hover:text-travel-teal transition-colors dark:text-white dark:hover:text-travel-teal py-2 ${
+                  location.pathname === '/weather' ? 'font-medium text-travel-teal' : ''
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <span className="font-passero-one">{t("weather")}</span>
+              </Link>
+            </div>
           </div>
         )}
       </div>
