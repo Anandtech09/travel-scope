@@ -17,7 +17,7 @@ app = FastAPI()
 # Configure CORS to allow frontend requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://travel-scope.vercel.app"],  # Restrict to frontend origin
+    allow_origins=["https://travel-scope.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,9 +31,13 @@ if not GEMINI_API_KEY:
 API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent"
 
 # Pydantic models for request validation
+class Budget(BaseModel):
+    value: float
+    currency: str = "USD"
+
 class TravelRecommendationsRequest(BaseModel):
     location: str
-    budget: float
+    budget: Union[float, Budget]  # Accept either a float (USD) or a Budget object
 
 class Destination(BaseModel):
     name: str
@@ -43,23 +47,34 @@ class DestinationDetailsRequest(BaseModel):
     destination: Destination
 
 # Helper functions
+async def convert_to_usd(value: float, currency: str) -> float:
+    """Convert a value from the given currency to USD (placeholder)."""
+    if currency.upper() == "USD":
+        return value
+    # TODO: Implement real currency conversion using an API (e.g., ExchangeRate-API)
+    # Example: Fetch conversion rate from https://api.exchangerate-api.com/v4/latest/USD
+    # For now, return the value as-is (assumes USD for Gemini API)
+    print(f"Warning: Currency conversion for {currency} not implemented. Treating as USD.")
+    return value
+
 def normalize_cost(cost: Optional[Dict]) -> Dict:
     normalized_cost = {}
     if cost:
-        if cost.get("train"):
-            if isinstance(cost["train"], dict) and ("min" in cost["train"] or "max" in cost["train"]):
-                min_val = cost["train"].get("min", 0)
-                max_val = cost["train"].get("max", min_val)
-                normalized_cost["train"] = (min_val + max_val) / 2
-            else:
-                normalized_cost["train"] = float(cost["train"])
-        if cost.get("bus"):
-            if isinstance(cost["bus"], dict) and ("min" in cost["bus"] or "max" in cost["bus"]):
-                min_val = cost["bus"].get("min", 0)
-                max_val = cost["bus"].get("max", min_val)
-                normalized_cost["bus"] = (min_val + max_val) / 2
-            else:
-                normalized_cost["bus"] = float(cost["bus"])
+        for transport in ["train", "bus"]:
+            if cost.get(transport):
+                cost_value = cost[transport]
+                if isinstance(cost_value, dict):
+                    if "min" in cost_value or "max" in cost_value:
+                        min_val = cost_value.get("min", 0)
+                        max_val = cost_value.get("max", min_val)
+                        normalized_cost[transport] = (min_val + max_val) / 2
+                    elif "value" in cost_value and "currency" in cost_value:
+                        # Handle currency-based cost (e.g., {"value": 5000, "currency": "INR"})
+                        normalized_cost[transport] = cost_value["value"]
+                    else:
+                        raise ValueError(f"Invalid cost format for {transport}: {cost_value}")
+                else:
+                    normalized_cost[transport] = float(cost_value)
     return normalized_cost
 
 def normalize_expenses(expenses: Optional[Dict]) -> Dict:
@@ -85,12 +100,24 @@ def get_destination_image(destination_name: str, index: int) -> str:
 # Endpoint to get travel recommendations
 @app.post("/api/travel-recommendations")
 async def get_travel_recommendations(request: TravelRecommendationsRequest):
-    if not request.location or not request.budget:
-        raise HTTPException(status_code=400, detail="Location and budget are required.")
+    if not request.location:
+        raise HTTPException(status_code=400, detail="Location is required.")
 
     try:
+        # Handle budget (float or Budget object)
+        budget_value = request.budget
+        currency = "USD"
+        if isinstance(budget_value, Budget):
+            currency = budget_value.currency
+            budget_value = budget_value.value
+        if not isinstance(budget_value, (int, float)):
+            raise HTTPException(status_code=400, detail="Budget must be a number or a Budget object")
+        
+        # Convert budget to USD if necessary
+        budget_usd = await convert_to_usd(budget_value, currency)
+
         prompt = f"""
-            Act as a travel expert. I am currently in {request.location} and have a budget of ${request.budget} USD.
+            Act as a travel expert. I am currently in {request.location} and have a budget of ${budget_usd} USD.
             I need recommendations for 6 destinations that I can travel to from my location within this budget.
             
             The response should be a valid JSON array with exactly 6 destinations, each with the following properties:
@@ -102,7 +129,7 @@ async def get_travel_recommendations(request: TravelRecommendationsRequest):
             - distance: Approximate distance from {request.location} in miles
             - travelTime: Estimated travel time range as a string
             
-            Include only realistic destinations that can be reached within the ${request.budget} budget.
+            Include only realistic destinations that can be reached within the ${budget_usd} USD budget.
             Return ONLY the JSON array, no other text.
         """
 
