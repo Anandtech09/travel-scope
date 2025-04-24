@@ -3,6 +3,10 @@
  */
 
 import { Destination } from "../components/DestinationCard";
+import { useToast } from "@/hooks/use-toast";
+
+// Environment variable for potential backend URL
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 // Add a function to get the API key
 const getGeminiApiKey = (): string => {
@@ -18,7 +22,7 @@ const getGeminiApiKey = (): string => {
   throw new Error('Gemini API Key is not configured. Please set it in settings.');
 };
 
-// Updated to use the new key retrieval method
+// Gemini API URL
 const API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent";
 
 interface GeminiRequestBody {
@@ -49,6 +53,12 @@ export const getTravelRecommendations = async (
   budget: number
 ): Promise<Destination[]> => {
   try {
+    // If backend URL is configured, use the backend API
+    if (BACKEND_URL) {
+      return await getRecommendationsFromBackend(location, budget);
+    }
+    
+    // Otherwise use direct API access
     const GEMINI_API_KEY = getGeminiApiKey();
     
     const prompt = `
@@ -59,13 +69,13 @@ export const getTravelRecommendations = async (
       - id: A unique string identifier
       - name: The destination name
       - description: A detailed 1-2 sentence description
-      - cost: Object with 'train' and/or 'bus' costs in USD (exclude if not applicable)
+      - cost: Object with 'train' and/or 'bus' costs as NUMBER values in USD (exclude if not applicable)
       - currency: '$'
       - distance: Approximate distance from ${location} in miles
       - travelTime: Estimated travel time range as a string
       
       Include only realistic destinations that can be reached within the $${budget} budget.
-      Return ONLY the JSON array, no other text.
+      Return ONLY the JSON array, no other text. Make sure all cost values are numbers, not objects or ranges.
     `;
 
     const requestBody: GeminiRequestBody = {
@@ -153,10 +163,39 @@ export const getTravelRecommendations = async (
 };
 
 /**
+ * Get destination details using backend API
+ */
+async function getRecommendationsFromBackend(location: string, budget: number): Promise<Destination[]> {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/travel-recommendations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ location, budget })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend API request failed with status ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching recommendations from backend:", error);
+    throw error;
+  }
+}
+
+/**
  * Get destination details including accommodation, food, attractions
  */
 export const getDestinationDetails = async (destination: Destination) => {
   try {
+    // If backend URL is configured, use the backend API
+    if (BACKEND_URL) {
+      return await getDetailsFromBackend(destination);
+    }
+    
     const GEMINI_API_KEY = getGeminiApiKey();
     
     const prompt = `
@@ -265,6 +304,30 @@ export const getDestinationDetails = async (destination: Destination) => {
     return null;
   }
 };
+
+/**
+ * Get destination details using backend API
+ */
+async function getDetailsFromBackend(destination: Destination) {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/destination-details`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ destination })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend API request failed with status ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching details from backend:", error);
+    throw error;
+  }
+}
 
 /**
  * Get a relevant image for the destination
