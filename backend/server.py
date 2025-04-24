@@ -17,7 +17,7 @@ app = FastAPI()
 # Configure CORS to allow frontend requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Restrict to frontend origin
+    allow_origins=["https://travel-scope.vercel.app"],  # Restrict to frontend origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
