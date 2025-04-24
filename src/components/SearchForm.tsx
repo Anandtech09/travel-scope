@@ -18,7 +18,7 @@ interface SearchFormProps {
 const backgroundImageUrl = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80";
 
 const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
-  const [location, setLocation] = useState<string>('Thiruvananthapuram, Kerala, India');
+  const [location, setLocation] = useState<string>('');
   const [budget, setBudget] = useState<string>('');
   const [locationLoading, setLocationLoading] = useState<boolean>(false);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(currencies[0]); // Default to USD
@@ -44,6 +44,9 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
     const savedLocation = localStorage.getItem('userLocation');
     if (savedLocation) {
       setLocation(savedLocation);
+    } else {
+      // Default to Thiruvananthapuram if no saved location
+      setLocation('Thiruvananthapuram, Kerala, India');
     }
   }, []);
 
@@ -111,6 +114,16 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
     }
   };
   
+  const getCardBackground = () => {
+    if (theme === 'dark') {
+      return 'absolute inset-0 bg-gradient-to-r from-blue-900/90 to-purple-900/90 z-10';
+    } else if (theme === 'custom') {
+      return 'absolute inset-0 bg-gradient-to-r z-10 custom-theme-gradient';
+    } else {
+      return 'absolute inset-0 bg-gradient-to-r from-blue-900/70 to-purple-900/70 z-10';
+    }
+  };
+  
   return (
     <div className="relative max-w-2xl mx-auto mb-8 overflow-hidden rounded-lg shadow-lg">
       {/* Background Image - Tourist Spot */}
@@ -122,8 +135,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
         }}
       ></div>
       
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-purple-900/70 z-10"></div>
+      {/* Gradient Overlay - Changes based on theme */}
+      <div className={getCardBackground()}></div>
       
       {/* Content */}
       <div className="relative z-20 p-6">

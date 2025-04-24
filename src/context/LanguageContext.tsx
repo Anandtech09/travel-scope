@@ -22,6 +22,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     const savedLanguage = localStorage.getItem("language");
     if (savedLanguage) {
       setLanguage(savedLanguage);
+      console.log("Language loaded from storage:", savedLanguage);
     }
   }, []);
   
@@ -31,8 +32,20 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     
     // Force update all components that use the t function
     document.documentElement.lang = language;
+    
     // Dispatch a custom event for components to listen to
     window.dispatchEvent(new CustomEvent("languageChange", { detail: language }));
+    
+    console.log("Language changed and saved:", language);
+    
+    // Force re-render of components
+    const elements = document.querySelectorAll("[data-i18n]");
+    elements.forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      if (key) {
+        el.textContent = translations[language]?.[key] || translations.en[key] || key;
+      }
+    });
   }, [language]);
   
   // Translation function that can be used across components

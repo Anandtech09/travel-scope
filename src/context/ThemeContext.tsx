@@ -60,6 +60,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     window.dispatchEvent(new CustomEvent("themeChange", { 
       detail: { theme, customColor } 
     }));
+    
+    console.log("Theme applied:", theme, customColor);
   }, [theme, customColor]);
 
   // Load saved theme and customColor from localStorage on initial load
@@ -74,6 +76,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (savedCustomColor) {
       setCustomColor(savedCustomColor);
     }
+    
+    console.log("Theme loaded from storage:", savedTheme, savedCustomColor);
   }, []);
 
   return (

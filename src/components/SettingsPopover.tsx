@@ -1,12 +1,6 @@
 
 import React, { useState, useContext, useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger 
-} from "./ui/dropdown-menu";
 import { Globe } from "lucide-react";
 import { ThemeContext } from "@/context/ThemeContext";
 import { LanguageContext } from "@/context/LanguageContext";
@@ -32,6 +26,7 @@ const SettingsPopover: React.FC = () => {
   // Function to handle theme change
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme as any);
+    console.log("Theme changed to:", newTheme);
     // Close popover after selection on mobile
     if (window.innerWidth < 768) {
       setTimeout(() => setOpen(false), 300);
@@ -41,6 +36,7 @@ const SettingsPopover: React.FC = () => {
   // Function to handle language change
   const handleLanguageChange = (newLanguage: string) => {
     setLanguage(newLanguage);
+    console.log("Language changed to:", newLanguage);
     // Close popover after selection on mobile
     if (window.innerWidth < 768) {
       setTimeout(() => setOpen(false), 300);
@@ -67,20 +63,26 @@ const SettingsPopover: React.FC = () => {
         <PopoverTrigger asChild>
           <button
             aria-label="Settings"
-            className="bg-white/60 dark:bg-gray-900/80 rounded-full p-3 shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-white transition-colors"
+            className="bg-white/60 dark:bg-gray-900/80 rounded-full p-3 shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-white transition-colors cursor-pointer"
           >
             <Globe className="text-travel-teal" size={28} />
           </button>
         </PopoverTrigger>
-        <PopoverContent className="w-72 p-4 bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700">
+        <PopoverContent 
+          className="w-72 p-4 bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700"
+          side="bottom"
+          align="end"
+          sideOffset={10}
+        >
           <div>
             <div className="mb-3 font-semibold dark:text-white">{t("choose_theme")}</div>
             <div className="flex items-center gap-3 mb-2">
               {themeOptions.map((th) => (
                 <button
                   key={th.value}
+                  type="button"
                   onClick={() => handleThemeChange(th.value)}
-                  className={`px-3 py-1.5 rounded transition-colors ${
+                  className={`px-3 py-1.5 rounded transition-colors cursor-pointer ${
                     theme === th.value 
                       ? "bg-travel-teal text-white" 
                       : "bg-gray-100 dark:bg-gray-700 dark:text-gray-200"
@@ -107,8 +109,9 @@ const SettingsPopover: React.FC = () => {
               {languageOptions.map((lang) => (
                 <button
                   key={lang.value}
+                  type="button"
                   onClick={() => handleLanguageChange(lang.value)}
-                  className={`px-3 py-1.5 rounded transition-colors ${
+                  className={`px-3 py-1.5 rounded transition-colors cursor-pointer ${
                     language === lang.value 
                       ? "bg-travel-teal text-white" 
                       : "bg-gray-100 dark:bg-gray-700 dark:text-gray-200"

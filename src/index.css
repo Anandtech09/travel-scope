@@ -118,15 +118,15 @@ body, html, .font-passero-one, * {
     border-color: hsl(var(--primary-hsl));
   }
   
-  :root[style*="--accent-hsl"] .text-travel-orange {
+  :root[style*="--primary-hsl"] .text-travel-orange {
     color: hsl(var(--accent-hsl));
   }
   
-  :root[style*="--accent-hsl"] .bg-travel-orange {
+  :root[style*="--primary-hsl"] .bg-travel-orange {
     background-color: hsl(var(--accent-hsl));
   }
   
-  :root[style*="--accent-hsl"] .border-travel-orange {
+  :root[style*="--primary-hsl"] .border-travel-orange {
     border-color: hsl(var(--accent-hsl));
   }
 }
@@ -155,6 +155,11 @@ body, html, .font-passero-one, * {
   
   .dark .text-travel-slate {
     @apply text-gray-200;
+  }
+  
+  /* Custom theme gradient */
+  .custom-theme-gradient {
+    @apply from-purple-700/80 to-blue-700/80;
   }
 }
 
