@@ -34,18 +34,24 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     document.documentElement.lang = language;
     
     // Dispatch a custom event for components to listen to
-    window.dispatchEvent(new CustomEvent("languageChange", { detail: language }));
+    const languageChangeEvent = new CustomEvent("languageChange", { detail: language });
+    window.dispatchEvent(languageChangeEvent);
     
     console.log("Language changed and saved:", language);
     
-    // Force re-render of components
+    // Force re-render of components with data-i18n attribute
     const elements = document.querySelectorAll("[data-i18n]");
     elements.forEach(el => {
       const key = el.getAttribute("data-i18n");
       if (key) {
-        el.textContent = translations[language]?.[key] || translations.en[key] || key;
+        el.textContent = translations[language as keyof typeof translations]?.[key as keyof (typeof translations)[keyof typeof translations]] || 
+                         translations.en[key as keyof typeof translations.en] || 
+                         key;
       }
     });
+    
+    // Force all components to update
+    document.dispatchEvent(new Event('languageUpdated'));
   }, [language]);
   
   // Translation function that can be used across components
@@ -53,8 +59,14 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     try {
       // Ensure we have the language, fallback to English if needed
       const currentLang = language in translations ? language : "en";
-      // Return the translation or fallback to the key if not found
-      return translations[currentLang]?.[key] || translations.en[key] || key;
+      // Get the translations for the current language
+      const currentTranslations = translations[currentLang as keyof typeof translations] || {};
+      
+      // Try to get the translation for the key
+      // @ts-ignore - this is a dynamic access
+      const translation = currentTranslations[key] || translations.en[key] || key;
+      
+      return translation;
     } catch (error) {
       console.error("Translation error:", error);
       return key;

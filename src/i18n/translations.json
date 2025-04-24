@@ -1,6 +1,9 @@
 
 {
   "en": {
+    "home": "Home",
+    "weather": "Weather",
+    "navigation": "Navigation",
     "choose_theme": "Theme",
     "theme_light": "Light",
     "theme_dark": "Dark",
@@ -45,6 +48,9 @@
     "find_destinations": "Find Destinations"
   },
   "ml": {
+    "home": "ഹോം",
+    "weather": "കാലാവസ്ഥ",
+    "navigation": "നാവിഗേഷൻ",
     "choose_theme": "തീം",
     "theme_light": "പ്രകാശം",
     "theme_dark": "ഇരുണ്ടത്",
@@ -89,6 +95,9 @@
     "find_destinations": "ലക്ഷ്യസ്ഥാനങ്ങൾ കണ്ടെത്തുക"
   },
   "hi": {
+    "home": "होम",
+    "weather": "मौसम",
+    "navigation": "नेविगेशन",
     "choose_theme": "थीम",
     "theme_light": "लाइट",
     "theme_dark": "डार्क",
@@ -133,6 +142,9 @@
     "find_destinations": "गंतव्य खोजें"
   },
   "ta": {
+    "home": "முகப்பு",
+    "weather": "வானிலை",
+    "navigation": "வழிசெலுத்தல்",
     "choose_theme": "தீம்",
     "theme_light": "ஒளி",
     "theme_dark": "இருள்",

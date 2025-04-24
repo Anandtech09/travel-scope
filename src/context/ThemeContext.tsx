@@ -21,29 +21,54 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setTheme] = useState<Theme>("light");
   const [customColor, setCustomColor] = useState("#0EA5E9");
 
-  useEffect(() => {
-    // Apply theme to document root
-    if (theme === "dark") {
+  // Apply theme changes to document
+  const applyTheme = (themeValue: Theme, colorValue: string) => {
+    if (themeValue === "dark") {
       document.documentElement.classList.add("dark");
       document.documentElement.classList.remove("light");
       document.documentElement.classList.remove("custom");
       document.documentElement.style.setProperty("--primary", "#0EA5E9");
-    } else if (theme === "custom") {
+    } else if (themeValue === "custom") {
       document.documentElement.classList.remove("dark");
       document.documentElement.classList.add("custom");
       document.documentElement.classList.remove("light");
-      document.documentElement.style.setProperty("--primary", customColor);
+      document.documentElement.style.setProperty("--primary", colorValue);
+      
+      // Compute HSL value from hex
+      const r = parseInt(colorValue.slice(1, 3), 16) / 255;
+      const g = parseInt(colorValue.slice(3, 5), 16) / 255;
+      const b = parseInt(colorValue.slice(5, 7), 16) / 255;
+      
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h = 0, s = 0, l = (max + min) / 2;
+
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        
+        h /= 6;
+      }
+      
+      const hslString = `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+      document.documentElement.style.setProperty("--primary-hsl", hslString);
       
       // Apply custom color to all elements with text-travel-teal class in real-time
       const tealTextElements = document.querySelectorAll(".text-travel-teal");
       tealTextElements.forEach(el => {
-        (el as HTMLElement).style.color = customColor;
+        (el as HTMLElement).style.color = colorValue;
       });
       
       // Apply custom color to all elements with bg-travel-teal class in real-time
       const tealBgElements = document.querySelectorAll(".bg-travel-teal");
       tealBgElements.forEach(el => {
-        (el as HTMLElement).style.backgroundColor = customColor;
+        (el as HTMLElement).style.backgroundColor = colorValue;
       });
     } else {
       document.documentElement.classList.remove("dark");
@@ -51,6 +76,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       document.documentElement.classList.add("light");
       document.documentElement.style.setProperty("--primary", "#0EA5E9");
     }
+  };
+
+  useEffect(() => {
+    // Apply the theme
+    applyTheme(theme, customColor);
 
     // Store theme and customColor in localStorage to persist between sessions
     localStorage.setItem("theme", theme);
@@ -60,6 +90,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     window.dispatchEvent(new CustomEvent("themeChange", { 
       detail: { theme, customColor } 
     }));
+    
+    // Force all components to update
+    document.dispatchEvent(new Event('themeUpdated'));
     
     console.log("Theme applied:", theme, customColor);
   }, [theme, customColor]);

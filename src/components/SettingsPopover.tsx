@@ -43,33 +43,50 @@ const SettingsPopover: React.FC = () => {
     }
   };
 
-  // Effect to ensure Popover stays in sync with open state
+  // Listen for changes from other instances
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (open && !(e.target as Element).closest('.settings-popover')) {
-        setOpen(false);
+    const handleThemeChange = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent.detail) {
+        // Don't update state if it already matches
+        if (customEvent.detail.theme !== theme) {
+          setTheme(customEvent.detail.theme);
+        }
+        if (customEvent.detail.customColor !== customColor) {
+          setCustomColor(customEvent.detail.customColor);
+        }
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+    const handleLanguageChange = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent.detail && customEvent.detail !== language) {
+        setLanguage(customEvent.detail);
+      }
     };
-  }, [open]);
+
+    window.addEventListener('themeChange', handleThemeChange as EventListener);
+    window.addEventListener('languageChange', handleLanguageChange as EventListener);
+
+    return () => {
+      window.removeEventListener('themeChange', handleThemeChange as EventListener);
+      window.removeEventListener('languageChange', handleLanguageChange as EventListener);
+    };
+  }, [theme, customColor, language, setTheme, setCustomColor, setLanguage]);
 
   return (
-    <div className="absolute top-4 right-4 z-50 settings-popover">
+    <div className="absolute top-4 right-4 z-[1000] settings-popover">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
             aria-label="Settings"
-            className="bg-white/60 dark:bg-gray-900/80 rounded-full p-3 shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-white transition-colors cursor-pointer"
+            className="bg-white/60 dark:bg-gray-900/80 rounded-full p-3 shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-white transition-colors cursor-pointer z-[1000]"
           >
             <Globe className="text-travel-teal" size={28} />
           </button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-72 p-4 bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700"
+          className="w-72 p-4 bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 z-[1001]"
           side="bottom"
           align="end"
           sideOffset={10}

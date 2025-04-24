@@ -15,8 +15,6 @@ interface SearchFormProps {
   isLoading: boolean;
 }
 
-const backgroundImageUrl = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80";
-
 const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
   const [location, setLocation] = useState<string>('');
   const [budget, setBudget] = useState<string>('');
@@ -34,8 +32,10 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
     };
 
     window.addEventListener('languageChange', handleLanguageChange);
+    document.addEventListener('languageUpdated', handleLanguageChange);
     return () => {
       window.removeEventListener('languageChange', handleLanguageChange);
+      document.removeEventListener('languageUpdated', handleLanguageChange);
     };
   }, []);
 
@@ -116,35 +116,23 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
   
   const getCardBackground = () => {
     if (theme === 'dark') {
-      return 'absolute inset-0 bg-gradient-to-r from-blue-900/90 to-purple-900/90 z-10';
+      return 'bg-gray-800 dark:bg-gray-900';
     } else if (theme === 'custom') {
-      return 'absolute inset-0 bg-gradient-to-r z-10 custom-theme-gradient';
+      return 'bg-white/90';
     } else {
-      return 'absolute inset-0 bg-gradient-to-r from-blue-900/70 to-purple-900/70 z-10';
+      return 'bg-white';
     }
   };
   
   return (
-    <div className="relative max-w-2xl mx-auto mb-8 overflow-hidden rounded-lg shadow-lg">
-      {/* Background Image - Tourist Spot */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center z-0" 
-        style={{ 
-          backgroundImage: `url(${backgroundImageUrl})`,
-          filter: 'brightness(0.7)'
-        }}
-      ></div>
-      
-      {/* Gradient Overlay - Changes based on theme */}
-      <div className={getCardBackground()}></div>
-      
+    <div className={`relative max-w-2xl mx-auto mb-8 overflow-hidden rounded-lg shadow-xl ${getCardBackground()}`}>
       {/* Content */}
       <div className="relative z-20 p-6">
-        <h2 className="text-2xl font-bold text-white mb-4">{t("find_perfect_destination")}</h2>
+        <h2 className="text-2xl font-bold text-travel-slate dark:text-white mb-4" data-i18n="find_perfect_destination">{t("find_perfect_destination")}</h2>
         
         <form onSubmit={handleSearch} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="location" className="text-white">{t("your_location")}</Label>
+            <Label htmlFor="location" className="text-travel-slate dark:text-white">{t("your_location")}</Label>
             <div className="flex gap-2">
               <div className="relative flex-grow">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -163,7 +151,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
                 variant="outline" 
                 onClick={handleLocationDetect}
                 disabled={locationLoading}
-                className="shrink-0 bg-white/20 text-white border-white/30 hover:bg-white/30"
+                className="shrink-0 bg-white/20 text-travel-slate dark:text-white border-gray-300 hover:bg-gray-100/80 dark:hover:bg-gray-700/80"
               >
                 {locationLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("detect")}
               </Button>
@@ -171,7 +159,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="budget" className="text-white">{t("travel_budget")}</Label>
+            <Label htmlFor="budget" className="text-travel-slate dark:text-white">{t("travel_budget")}</Label>
             <div className="flex gap-2">
               <div className="relative flex-grow">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -192,7 +180,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
                 onCurrencyChange={setSelectedCurrency}
               />
             </div>
-            <p className="text-xs text-white/80">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               {selectedCurrency.code !== 'USD' && budget && !isNaN(parseFloat(budget)) ? (
                 `≈ $${(parseFloat(budget) / selectedCurrency.rate).toFixed(2)} USD`
               ) : ''}
@@ -201,7 +189,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
           
           <Button 
             type="submit" 
-            className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-white border-none"
+            className="w-full bg-travel-teal hover:opacity-90 text-white border-none"
             disabled={isLoading}
           >
             {isLoading ? (
