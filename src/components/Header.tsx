@@ -24,7 +24,7 @@ const Header = () => {
         <div className="flex items-center justify-between py-4">
           <Link to="/" className="flex items-center space-x-2">
             <img 
-              src="/lovable-uploads/a94d164b-d29c-4e41-a1bd-66bda4912d48.png" 
+              src="/uploads/a94d164b-d29c-4e41-a1bd-66bda4912d48.png" 
               alt="TravelScope Logo"
               className="h-9 w-9 object-contain rounded-full shadow-lg"
             />
