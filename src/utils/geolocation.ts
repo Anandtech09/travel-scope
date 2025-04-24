@@ -64,7 +64,7 @@ export const checkGeolocationPermission = async (): Promise<string> => {
 };
 
 /**
- * Reverse geocode coordinates to location name using OpenStreetMap's Nominatim
+ * Reverse geocode coordinates to location
  */
 export const reverseGeocode = async (lat: number, lon: number): Promise<{
   district: string;
