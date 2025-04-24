@@ -5,6 +5,7 @@ import SearchForm from '../components/SearchForm';
 import DestinationCard, { Destination } from '../components/DestinationCard';
 import DestinationDetail from '../components/DestinationDetail';
 import Footer from '../components/Footer';
+import NetworkBackground from '../components/NetworkBackground';
 import { useToast } from '@/hooks/use-toast';
 import { Compass, Loader2, AlertTriangle } from 'lucide-react';
 import { getTravelRecommendations } from '../utils/geminiApi';
@@ -188,10 +189,11 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col dark:bg-gray-900 relative overflow-hidden">
+      <NetworkBackground />
       <Header />
       
-      <main className="flex-grow">
+      <main className="flex-grow relative z-10">
         <Hero />
         
         <div className="container mx-auto px-4">
