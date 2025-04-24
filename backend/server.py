@@ -17,14 +17,14 @@ app = FastAPI()
 # Configure CORS to allow frontend requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this in production to specific origins
+    allow_origins=["*"],  # Restrict to frontend origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Securely retrieve API key from environment variables
-GEMINI_API_KEY = os.getenv("VITE_GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY is not configured in environment variables.")
 
@@ -116,33 +116,39 @@ async def get_travel_recommendations(request: TravelRecommendationsRequest):
             },
         }
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
                 f"{API_URL}?key={GEMINI_API_KEY}",
                 json=request_body,
                 headers={"Content-Type": "application/json"},
             )
 
+        print(f"Gemini API status: {response.status_code}")
         if response.status_code != 200:
-            print(f"Gemini API failed with status: {response.status_code}, response: {response.text}")
+            print(f"Gemini API response: {response.text}")
             raise HTTPException(
-                status_code=500, detail=f"Gemini API request failed with status {response.status_code}"
+                status_code=500, detail=f"Gemini API request failed with status {response.status_code}: {response.text}"
             )
 
         data = response.json()
+        print(f"Gemini API full response: {json.dumps(data, indent=2)}")
         if not data.get("candidates") or not data["candidates"][0].get("content"):
-            print(f"Invalid Gemini API response: {data}")
             raise HTTPException(status_code=500, detail="Invalid Gemini API response format")
-        
+
         response_text = data["candidates"][0]["content"]["parts"][0]["text"]
         print(f"Gemini API response text: {response_text}")
-        
+
         json_match = re.search(r"\[[\s\S]*\]", response_text)
         if not json_match:
             print(f"Failed to extract JSON array from response: {response_text}")
             raise HTTPException(status_code=500, detail="Failed to extract destinations from API response")
 
-        destinations = json.loads(json_match.group(0))
+        try:
+            destinations = json.loads(json_match.group(0))
+        except json.JSONDecodeError as e:
+            print(f"JSON parsing error: {str(e)}, response: {response_text}")
+            raise HTTPException(status_code=500, detail="Failed to parse destinations JSON")
+
         normalized_destinations = [
             {
                 **dest,
@@ -158,7 +164,7 @@ async def get_travel_recommendations(request: TravelRecommendationsRequest):
         print(f"Error fetching travel recommendations: {str(e)}")
         if 'response' in locals():
             print(f"Response status: {response.status_code}, text: {response.text}")
-        raise HTTPException(status_code=500, detail="Failed to fetch recommendations")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch recommendations: {str(e)}")
 
 # Endpoint to get destination details
 @app.post("/api/destination-details")
@@ -207,33 +213,48 @@ async def get_destination_details(request: DestinationDetailsRequest):
             },
         }
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
                 f"{API_URL}?key={GEMINI_API_KEY}",
                 json=request_body,
                 headers={"Content-Type": "application/json"},
             )
 
+        print(f"Gemini API status: {response.status_code}")
         if response.status_code != 200:
+            print(f"Gemini API response: {response.text}")
             raise HTTPException(
-                status_code=500, detail=f"Gemini API request failed with status {response.status_code}"
+                status_code=500, detail=f"Gemini API request failed with status {response.status_code}: {response.text}"
             )
 
         data = response.json()
-        response_text = data["candidates"][0]["content"]["parts"][0]["text"]
-        json_match = re.search(r"\{[\s\S]*\}", response_text)
+        print(f"Gemini API full response: {json.dumps(data, indent=2)}")
+        if not data.get("candidates") or not data["candidates"][0].get("content"):
+            raise HTTPException(status_code=500, detail="Invalid Gemini API response format")
 
+        response_text = data["candidates"][0]["content"]["parts"][0]["text"]
+        print(f"Gemini API response text: {response_text}")
+
+        json_match = re.search(r"\{[\s\S]*\}", response_text)
         if not json_match:
+            print(f"Failed to extract JSON object from response: {response_text}")
             raise HTTPException(status_code=500, detail="Failed to extract details from API response")
 
-        details = json.loads(json_match.group(0))
+        try:
+            details = json.loads(json_match.group(0))
+        except json.JSONDecodeError as e:
+            print(f"JSON parsing error: {str(e)}, response: {response_text}")
+            raise HTTPException(status_code=500, detail="Failed to parse details JSON")
+
         details["expenses"] = normalize_expenses(details.get("expenses"))
 
         return details
 
     except Exception as e:
-        print(f"Error fetching destination details: {e}")
-        raise HTTPException(status_code=500, detail="Failed to fetch destination details")
+        print(f"Error fetching destination details: {str(e)}")
+        if 'response' in locals():
+            print(f"Response status: {response.status_code}, text: {response.text}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch destination details: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
