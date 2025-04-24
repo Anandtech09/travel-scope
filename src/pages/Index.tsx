@@ -194,7 +194,7 @@ const Index = () => {
       <main className="flex-grow">
         <Hero />
         
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 pt-8">
           <SearchForm onSearch={handleSearch} isLoading={isLoading} />
           
           {isLoading && (

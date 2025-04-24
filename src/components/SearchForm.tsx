@@ -125,7 +125,10 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) => {
   };
   
   return (
-    <div className={`relative max-w-2xl mx-auto mb-8 overflow-hidden rounded-lg shadow-xl ${getCardBackground()}`}>
+    <div
+      className={`relative max-w-2xl mx-auto mb-8 overflow-hidden rounded-lg ${getCardBackground()}`}
+      style={{ boxShadow: '5px 5px 15px rgba(9, 122, 228, 0.5), 5px 5px 20px rgba(64, 185, 225, 0.5)' }}
+    >
       {/* Content */}
       <div className="relative z-20 p-6">
         <h2 className="text-2xl font-bold text-travel-slate dark:text-white mb-4" data-i18n="find_perfect_destination">{t("find_perfect_destination")}</h2>
