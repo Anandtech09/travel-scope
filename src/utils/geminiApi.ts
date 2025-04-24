@@ -5,7 +5,7 @@
 
 import { Destination } from "../components/DestinationCard";
 
-const GEMINI_API_KEY = "AIzaSyA-2ZBlyAEcfOOyTcit3-eD2MXyZ4uPHbM";
+const GEMINI_API_KEY = process.env.VITE_GEMINI_API_KEY;
 // Updated to use the correct API URL with model name in the path
 const API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent";
 
