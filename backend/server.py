@@ -28,7 +28,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY is not configured in environment variables.")
 
-API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent"
+API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent"
 
 # Pydantic models for request validation
 class Budget(BaseModel):
