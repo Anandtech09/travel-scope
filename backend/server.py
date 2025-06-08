@@ -28,7 +28,65 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY is not configured in environment variables.")
 
-API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent"
+# Define a variable for the model name, we'll try to determine the best one
+GEMINI_MODEL_NAME = "gemini-1.5-flash" # Default to gemini-1.5-flash first
+
+# Function to dynamically get available models
+async def get_available_gemini_model():
+    list_models_url = f"https://generativelanguage.googleapis.com/v1/models?key={GEMINI_API_KEY}"
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(list_models_url)
+            response.raise_for_status() # Raise an exception for HTTP errors (4xx or 5xx)
+            models_data = response.json()
+            
+            # Prioritize models that support generateContent and are typically free tier
+            preferred_models = ["gemini-1.5-flash", "gemini-pro"]
+            
+            for preferred_model in preferred_models:
+                for model_info in models_data.get("models", []):
+                    # Check for exact model name match or a versioned variant
+                    if model_info.get("name") == f"models/{preferred_model}" or model_info.get("name").startswith(f"models/{preferred_model}-"):
+                        if "generateContent" in model_info.get("supportedGenerationMethods", []):
+                            print(f"Found suitable model: {model_info.get('name').split('/')[-1]}")
+                            return model_info.get("name").split('/')[-1] # Return just the model ID
+            
+            # Fallback if preferred models are not found or don't support generateContent
+            # Iterate through all models and pick the first one supporting generateContent
+            for model_info in models_data.get("models", []):
+                if "generateContent" in model_info.get("supportedGenerationMethods", []):
+                    print(f"Falling back to model: {model_info.get('name').split('/')[-1]}")
+                    return model_info.get("name").split('/')[-1]
+            
+            raise ValueError("No suitable Gemini model found that supports generateContent.")
+            
+    except httpx.RequestError as e:
+        print(f"HTTPX request error when listing models: {e}")
+        raise ValueError(f"Could not connect to Gemini API to list models: {e}")
+    except httpx.HTTPStatusError as e:
+        print(f"HTTP error when listing models: {e.response.status_code} - {e.response.text}")
+        raise ValueError(f"Gemini API error when listing models: {e.response.text}")
+    except Exception as e:
+        print(f"Error listing Gemini models: {e}")
+        raise ValueError(f"Failed to list Gemini models: {e}")
+
+# Call this once at startup to set the model name
+@app.on_event("startup")
+async def startup_event():
+    global GEMINI_MODEL_NAME
+    try:
+        GEMINI_MODEL_NAME = await get_available_gemini_model()
+        print(f"Using Gemini model: {GEMINI_MODEL_NAME}")
+    except ValueError as e:
+        print(f"Critical error at startup: {e}")
+        # Optionally, you might want to stop the app or run in a degraded mode
+        # For now, we'll let it fail if a model cannot be determined.
+        raise HTTPException(status_code=500, detail=f"Failed to initialize Gemini model: {e}")
+
+
+# Update API_URL to use the dynamically determined model name
+# This will be constructed in the endpoints after startup,
+# or you can make API_URL a function/property if preferred.
 
 # Pydantic models for request validation
 class Budget(BaseModel):
@@ -52,7 +110,6 @@ async def convert_to_usd(value: float, currency: str) -> float:
     if currency.upper() == "USD":
         return value
     # TODO: Implement real currency conversion using an API (e.g., ExchangeRate-API)
-    # Example: Fetch conversion rate from https://api.exchangerate-api.com/v4/latest/USD
     # For now, return the value as-is (assumes USD for Gemini API)
     print(f"Warning: Currency conversion for {currency} not implemented. Treating as USD.")
     return value
@@ -69,7 +126,6 @@ def normalize_cost(cost: Optional[Dict]) -> Dict:
                         max_val = cost_value.get("max", min_val)
                         normalized_cost[transport] = (min_val + max_val) / 2
                     elif "value" in cost_value and "currency" in cost_value:
-                        # Handle currency-based cost (e.g., {"value": 5000, "currency": "INR"})
                         normalized_cost[transport] = cost_value["value"]
                     else:
                         raise ValueError(f"Invalid cost format for {transport}: {cost_value}")
@@ -142,10 +198,13 @@ async def get_travel_recommendations(request: TravelRecommendationsRequest):
                 "maxOutputTokens": 4096,
             },
         }
+        
+        # Construct the API URL using the dynamically determined model name
+        current_api_url = f"https://generativelanguage.googleapis.com/v1/models/{GEMINI_MODEL_NAME}:generateContent"
 
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
-                f"{API_URL}?key={GEMINI_API_KEY}",
+                f"{current_api_url}?key={GEMINI_API_KEY}",
                 json=request_body,
                 headers={"Content-Type": "application/json"},
             )
@@ -240,9 +299,12 @@ async def get_destination_details(request: DestinationDetailsRequest):
             },
         }
 
+        # Construct the API URL using the dynamically determined model name
+        current_api_url = f"https://generativelanguage.googleapis.com/v1/models/{GEMINI_MODEL_NAME}:generateContent"
+
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
-                f"{API_URL}?key={GEMINI_API_KEY}",
+                f"{current_api_url}?key={GEMINI_API_KEY}",
                 json=request_body,
                 headers={"Content-Type": "application/json"},
             )
